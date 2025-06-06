@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="fa">
+<head>
+    <meta charset="UTF-8">
+    <title>لیست حجره‌ها</title>
+</head>
+<body dir="rtl">
+    <h2>لیست حجره‌های ثبت‌شده</h2>
+    {% if shops %}
+        <ul>
+        {% for shop in shops %}
+            <li>
+                <strong>{{ shop.shop_name }}</strong> - {{ shop.phone }} ({{ shop.category }})
+            </li>
+        {% endfor %}
+        </ul>
+    {% else %}
+        <p>هنوز هیچ حجره‌ای ثبت نشده است.</p>
+    {% endif %}
+</body>
+</html>
