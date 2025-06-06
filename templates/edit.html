@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="fa">
+<head>
+    <meta charset="UTF-8">
+    <title>ویرایش حجره</title>
+</head>
+<body dir="rtl">
+    <h2>✏️ ویرایش حجره</h2>
+    <form method="post">
+        <label>نام حجره:</label><br>
+        <input type="text" name="shop_name" value="{{ shop.shop_name }}"><br><br>
+
+        <label>شماره تماس:</label><br>
+        <input type="text" name="phone" value="{{ shop.phone }}"><br><br>
+
+        <label>دسته‌بندی:</label><br>
+        <input type="text" name="category" value="{{ shop.category }}"><br><br>
+
+        <input type="submit" value="ذخیره تغییرات">
+    </form>
+</body>
+</html>

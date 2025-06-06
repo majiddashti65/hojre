@@ -11,11 +11,13 @@
 
 <ul>
 {% for shop in shops %}
-    <li>
-        <strong><a href="/shop/{{ loop.index0 }}">{{ shop.shop_name }}</a></strong>
-        - {{ shop.phone }} ({{ shop.category }})
-        | <a href="/delete/{{ loop.index0 }}" onclick="return confirm('آیا مطمئنی می‌خواهی حذف کنی؟')">🗑️ حذف</a>
-    </li>
+<li>
+    <strong><a href="/shop/{{ loop.index0 }}">{{ shop.shop_name }}</a></strong>
+    - {{ shop.phone }} ({{ shop.category }})
+    | <a href="/edit/{{ loop.index0 }}">✏️ ویرایش</a>
+    | <a href="/delete/{{ loop.index0 }}" onclick="return confirm('آیا مطمئنی می‌خواهی حذف کنی؟')">🗑️ حذف</a>
+</li>
+
 {% endfor %}
 </ul>
 

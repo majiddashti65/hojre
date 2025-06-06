@@ -90,6 +90,34 @@ def delete_shop(shop_id):
 
 
 
+@app.route('/edit/<int:shop_id>', methods=['GET', 'POST'])
+def edit_shop(shop_id):
+    if os.path.exists(DATA_FILE):
+        with open(DATA_FILE, 'r', encoding='utf-8') as f:
+            data = json.load(f)
+    else:
+        return "⛔ فایل داده‌ها پیدا نشد", 404
+
+    if 0 <= shop_id < len(data):
+        if request.method == 'POST':
+            # دریافت اطلاعات جدید از فرم
+            data[shop_id]['shop_name'] = request.form.get('shop_name')
+            data[shop_id]['phone'] = request.form.get('phone')
+            data[shop_id]['category'] = request.form.get('category')
+
+            # ذخیره در فایل
+            with open(DATA_FILE, 'w', encoding='utf-8') as f:
+                json.dump(data, f, ensure_ascii=False, indent=2)
+
+            return render_template("edit_success.html", shop=data[shop_id])
+        else:
+            # نمایش فرم ویرایش با داده‌های فعلی
+            return render_template("edit.html", shop=data[shop_id], shop_id=shop_id)
+    else:
+        return "⛔ شناسه حجره نامعتبر است", 404
+
+
+
 
 
 
