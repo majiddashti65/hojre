@@ -64,3 +64,21 @@ if __name__ == '__main__':
 
 
 
+@app.route('/shop/<int:shop_id>')
+def shop_detail(shop_id):
+    if os.path.exists(DATA_FILE):
+        with open(DATA_FILE, 'r', encoding='utf-8') as f:
+            data = json.load(f)
+    else:
+        data = []
+
+    if 0 <= shop_id < len(data):
+        shop = data[shop_id]
+        return render_template("shop_detail.html", shop=shop)
+    else:
+        return "⛔️ حجره‌ای با این شناسه پیدا نشد", 404
+
+
+
+
+

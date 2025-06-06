@@ -9,9 +9,12 @@
     {% if shops %}
         <ul>
         {% for shop in shops %}
-            <li>
-                <strong>{{ shop.shop_name }}</strong> - {{ shop.phone }} ({{ shop.category }})
-            </li>
+<li>
+    <a href="/shop/{{ loop.index0 }}">
+        <strong>{{ shop.shop_name }}</strong>
+    </a> - {{ shop.phone }} ({{ shop.category }})
+</li>
+
         {% endfor %}
         </ul>
     {% else %}
