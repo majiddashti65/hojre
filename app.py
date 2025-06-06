@@ -53,17 +53,6 @@ def show_shops():
 
 
 
-
-
-
-if __name__ == '__main__':
-    port = int(os.environ.get('PORT', 5000))
-    app.run(host='0.0.0.0', port=port)
-
-
-
-
-
 @app.route('/shop/<int:shop_id>')
 def shop_detail(shop_id):
     if os.path.exists(DATA_FILE):
@@ -77,6 +66,22 @@ def shop_detail(shop_id):
         return render_template("shop_detail.html", shop=shop)
     else:
         return "⛔️ حجره‌ای با این شناسه پیدا نشد", 404
+
+
+
+
+
+
+
+
+if __name__ == '__main__':
+    port = int(os.environ.get('PORT', 5000))
+    app.run(host='0.0.0.0', port=port)
+
+
+
+
+
 
 
 
