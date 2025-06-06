@@ -7,16 +7,21 @@
 <body dir="rtl">
     <h2>لیست حجره‌های ثبت‌شده</h2>
     {% if shops %}
-        <ul>
-        {% for shop in shops %}
-<li>
-    <a href="/shop/{{ loop.index0 }}">
-        <strong>{{ shop.shop_name }}</strong>
-    </a> - {{ shop.phone }} ({{ shop.category }})
-</li>
 
-        {% endfor %}
-        </ul>
+
+<ul>
+{% for shop in shops %}
+    <li>
+        <strong><a href="/shop/{{ loop.index0 }}">{{ shop.shop_name }}</a></strong>
+        - {{ shop.phone }} ({{ shop.category }})
+        | <a href="/delete/{{ loop.index0 }}" onclick="return confirm('آیا مطمئنی می‌خواهی حذف کنی؟')">🗑️ حذف</a>
+    </li>
+{% endfor %}
+</ul>
+
+
+
+
     {% else %}
         <p>هنوز هیچ حجره‌ای ثبت نشده است.</p>
     {% endif %}

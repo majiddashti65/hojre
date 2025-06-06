@@ -70,6 +70,30 @@ def shop_detail(shop_id):
 
 
 
+@app.route('/delete/<int:shop_id>')
+def delete_shop(shop_id):
+    if os.path.exists(DATA_FILE):
+        with open(DATA_FILE, 'r', encoding='utf-8') as f:
+            data = json.load(f)
+    else:
+        data = []
+
+    if 0 <= shop_id < len(data):
+        deleted = data.pop(shop_id)
+        with open(DATA_FILE, 'w', encoding='utf-8') as f:
+            json.dump(data, f, ensure_ascii=False, indent=2)
+        print(f"🗑️ حجره حذف شد: {deleted['shop_name']}")
+    else:
+        print("❗ شناسه نامعتبر")
+
+    return render_template("delete_success.html", shop_name=deleted['shop_name'])
+
+
+
+
+
+
+
 
 
 
