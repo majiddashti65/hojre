@@ -1,6 +1,10 @@
 from flask import Flask, request, render_template
+import os
+import json
 
 app = Flask(__name__)
+
+DATA_FILE = 'hojreh_data.json'
 
 @app.route('/', methods=['GET'])
 def home():
@@ -11,12 +15,29 @@ def register():
     shop_name = request.form.get('shop_name')
     phone = request.form.get('phone')
     category = request.form.get('category')
-    
-    print(f"حجره جدید ثبت شد: {shop_name}, {phone}, {category}")
-    
+
+    new_shop = {
+        "shop_name": shop_name,
+        "phone": phone,
+        "category": category
+    }
+
+    # اگر فایل وجود داره، بخون
+    if os.path.exists(DATA_FILE):
+        with open(DATA_FILE, 'r', encoding='utf-8') as f:
+            data = json.load(f)
+    else:
+        data = []
+
+    # اضافه کردن حجره جدید
+    data.append(new_shop)
+
+    # ذخیره در فایل
+    with open(DATA_FILE, 'w', encoding='utf-8') as f:
+        json.dump(data, f, ensure_ascii=False, indent=2)
+
     return f"✅ حجره با نام {shop_name} ثبت شد!"
 
 if __name__ == '__main__':
-    import os
     port = int(os.environ.get('PORT', 5000))
     app.run(host='0.0.0.0', port=port)
