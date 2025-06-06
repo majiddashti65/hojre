@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="fa">
+<head>
+    <meta charset="UTF-8">
+    <title>ثبت محصول جدید</title>
+    <script>
+        function toggleDiscountBox() {
+            var checkbox = document.getElementById('has_discount');
+            var discountBox = document.getElementById('discount_box');
+            discountBox.style.display = checkbox.checked ? 'block' : 'none';
+        }
+    </script>
+</head>
+<body dir="rtl">
+    <h2>🛍️ ثبت محصول برای حجره شماره {{ shop_id }}</h2>
+
+    <form method="POST" enctype="multipart/form-data">
+        <label>نام کالا:</label><br>
+        <input type="text" name="product_name" required><br><br>
+
+        <label>قیمت (تومان):</label><br>
+        <input type="number" name="price" required><br><br>
+
+        <label><input type="checkbox" name="has_discount" id="has_discount" onchange="toggleDiscountBox()"> تخفیف دارد؟</label><br>
+
+        <div id="discount_box" style="display:none;">
+            <label>مبلغ تخفیف:</label><br>
+            <input type="number" name="discount"><br><br>
+        </div>
+
+        <label>تصاویر محصول (حداکثر ۳ عدد):</label><br>
+        <input type="file" name="images" multiple accept="image/*" required><br><br>
+
+        <input type="submit" value="ثبت محصول">
+    </form>
+
+    <br>
+    <a href="/shops">← بازگشت</a>
+</body>
+</html>

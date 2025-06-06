@@ -120,6 +120,50 @@ def edit_shop(shop_id):
 
 
 
+from flask import Flask, request, render_template, redirect, url_for
+from werkzeug.utils import secure_filename
+
+# بقیه کدها بالا...
+
+UPLOAD_FOLDER = 'static/uploads'
+os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+
+@app.route('/product/<int:shop_id>', methods=['GET', 'POST'])
+def add_product(shop_id):
+    if request.method == 'POST':
+        product_name = request.form.get('product_name')
+        price = request.form.get('price')
+        discount = request.form.get('discount') if request.form.get('has_discount') else None
+
+        images = request.files.getlist('images')
+        image_paths = []
+
+        for image in images[:3]:  # فقط ۳ عکس اول ذخیره می‌شوند
+            if image.filename:
+                filename = secure_filename(image.filename)
+                filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+                image.save(filepath)
+                image_paths.append(filepath)
+
+        # چاپ تستی در لاگ
+        print("🛒 محصول جدید:")
+        print("نام:", product_name)
+        print("قیمت:", price)
+        print("تخفیف:", discount)
+        print("تصاویر:", image_paths)
+
+        return f"✅ محصول {product_name} با موفقیت ثبت شد."
+
+    return render_template("add_product.html", shop_id=shop_id)
+
+
+
+
+
+
+
+
 
 
 
