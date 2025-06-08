@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="fa">
+<head>
+    <meta charset="UTF-8">
+    <title>داشبورد حجره‌دار</title>
+</head>
+<body dir="rtl">
+    <h2>📊 داشبورد حجره‌دار</h2>
+
+    <h3>🧱 اطلاعات حجره:</h3>
+    <ul>
+        <li><strong>نام حجره:</strong> {{ shop.shop_name }}</li>
+        <li><strong>شماره تماس:</strong> {{ shop.phone }}</li>
+        <li><strong>دسته‌بندی:</strong> {{ shop.category_main }} / {{ shop.category_sub }}</li>
+        <li><strong>آدرس:</strong> {{ shop.address }}</li>
+        <li><strong>موقعیت جغرافیایی:</strong> {{ shop.latitude }}, {{ shop.longitude }}</li>
+    </ul>
+
+    <h3>🛒 تعداد محصولات: {{ product_count }}</h3>
+
+    <h3>📂 عملیات مدیریتی:</h3>
+    <ul>
+        <li><a href="/product/{{ shop_id }}">➕ افزودن محصول جدید</a></li>
+        <li><a href="/products/{{ shop_id }}">📋 مدیریت محصولات</a></li>
+        <li><a href="/edit/{{ shop_id }}">🛠 ویرایش مشخصات حجره</a></li>
+        <li><a href="/shop/{{ shop_id }}/products" target="_blank">👁‍🗨 مشاهده فروشگاه عمومی</a></li>
+        <li><a href="/logout">🚪 خروج از حساب</a></li>
+    </ul>
+
+    <br>
+</body>
+</html>

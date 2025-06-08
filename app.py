@@ -244,6 +244,39 @@ def shop_store(shop_id):
 
 
 
+@app.route('/dashboard')
+def dashboard():
+    if 'shop_id' not in session:
+        return redirect(url_for('login'))
+
+    shop_id = session['shop_id']
+
+    # خواندن اطلاعات حجره
+    if os.path.exists(DATA_FILE):
+        with open(DATA_FILE, 'r', encoding='utf-8') as f:
+            shops = json.load(f)
+    else:
+        shops = []
+
+    if 0 <= shop_id < len(shops):
+        shop = shops[shop_id]
+    else:
+        return "⛔ اطلاعات حجره پیدا نشد", 404
+
+    # محصولات حجره
+    product_file = f'products_{shop_id}.json'
+    if os.path.exists(product_file):
+        with open(product_file, 'r', encoding='utf-8') as f:
+            products = json.load(f)
+    else:
+        products = []
+
+    return render_template("dashboard.html", shop=shop, shop_id=shop_id, product_count=len(products))
+
+
+
+
+
 
 
 
