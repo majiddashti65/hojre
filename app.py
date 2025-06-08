@@ -425,50 +425,104 @@ def cart():
 
 
 
+
+
+def send_sms_faraz(to, message):
+    url = "https://rest.farazsms.com/api/SendSMS"
+    payload = {
+        "username": "09132560530",
+        "password": "OWYxYjk5NzktODdhMy00ZDNlLTk4OWMtZmM4OTc0MmE2N2MxZGUxYWU5MzY1MjNlODhmY2FhZDY2MDk4YmMxNmZmNTk=",
+        "source": "+9810003894459463",
+        "destinations": [to],
+        "message": message
+    }
+
+    try:
+        response = requests.post(url, json=payload)
+        print("✅ ارسال پیامک:", response.text)
+    except Exception as e:
+        print("❌ خطا در ارسال پیامک:", str(e))
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 import datetime
 
-@app.route('/checkout', methods=['GET', 'POST'])
-def checkout():
-    cart = session.get('cart', [])
+@app.route('/checkout/<int:shop_id>', methods=['POST'])
+def checkout(shop_id):
+    name = request.form.get('name')
+    phone = request.form.get('phone')
+    address = request.form.get('address')
+    notes = request.form.get('notes')
+
+    # دریافت محصولات از سبد خرید session
+    cart = session.get('cart', {}).get(str(shop_id), [])
+
+    if not cart:
+        return "⛔ سبد خرید شما خالی است", 400
+
     total = 0
     for item in cart:
-        price = int(item.get('price', 0))
-        discount = int(item.get('discount', 0)) if item.get('discount') else 0
+        price = int(item["price"])
+        discount = int(item["discount"]) if item.get("discount") else 0
         total += price - discount
 
-    if request.method == 'POST':
-        name = request.form.get('name')
-        phone = request.form.get('phone')
-        address = request.form.get('address')
-        notes = request.form.get('notes')
+    order = {
+        "shop_id": shop_id,
+        "name": name,
+        "phone": phone,
+        "address": address,
+        "notes": notes,
+        "items": cart,
+        "total": total,
+        "datetime": datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+    }
 
-        # ✍️ ذخیره سفارش در فایل JSON
-        order = {
-            "name": name,
-            "phone": phone,
-            "address": address,
-            "notes": notes,
-            "total": total,
-            "items": cart,
-            "datetime": datetime.datetime.now().isoformat()
-        }
+    # ذخیره در فایل orders.json
+    orders_file = "orders.json"
+    if os.path.exists(orders_file):
+        with open(orders_file, "r", encoding="utf-8") as f:
+            orders = json.load(f)
+    else:
+        orders = []
 
-        if os.path.exists("orders.json"):
-            with open("orders.json", "r", encoding="utf-8") as f:
-                orders = json.load(f)
-        else:
-            orders = []
+    orders.append(order)
 
-        orders.append(order)
+    with open(orders_file, "w", encoding="utf-8") as f:
+        json.dump(orders, f, ensure_ascii=False, indent=2)
 
-        with open("orders.json", "w", encoding="utf-8") as f:
-            json.dump(orders, f, ensure_ascii=False, indent=2)
+    # پاک‌سازی سبد خرید این حجره
+    session["cart"][str(shop_id)] = []
+    session.modified = True
 
-        session.pop('cart', None)
+    # دریافت اطلاعات حجره برای پیامک
+    if os.path.exists(DATA_FILE):
+        with open(DATA_FILE, "r", encoding="utf-8") as f:
+            shops = json.load(f)
+        shop = shops[shop_id]
+    else:
+        shop = {"shop_name": "نامشخص", "phone": ""}
 
-        return render_template("checkout_success.html", name=name, total=total)
+    # پیامک‌ها
+    msg_to_customer = f"سفارش شما در حجره {shop['shop_name']} با مبلغ {total} تومان ثبت شد. با تشکر 🙏"
+    msg_to_owner = f"📥 سفارش جدید از طرف {name} ({phone}) در حجره {shop['shop_name']}. مبلغ: {total} تومان"
 
-    return render_template("checkout.html", cart=cart, total=total)
+    # تابع ارسال پیامک با FarazSMS
+    send_sms_faraz(to=phone, message=msg_to_customer)        # برای مشتری
+    send_sms_faraz(to=shop["phone"], message=msg_to_owner)   # برای حجره‌دار
+
+    return render_template("checkout_success.html", order=order)
+
 
 
 
