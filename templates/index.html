@@ -44,6 +44,9 @@
         <input type="hidden" name="latitude" id="latitude">
         <input type="hidden" name="longitude" id="longitude">
 
+        <label>📌 آدرس انتخاب‌شده:</label><br>
+        <input type="text" id="address" name="address" readonly style="width: 100%;"><br><br>
+
         <input type="submit" value="ثبت حجره">
     </form>
 
@@ -77,8 +80,8 @@
             }
         }
 
-        // نقشه Leaflet
-        var map = L.map('map').setView([32.6539, 51.6660], 13); // موقعیت پیش‌فرض (اصفهان)
+        // نقشه Leaflet با مختصات پیش‌فرض (مثلاً اصفهان)
+        var map = L.map('map').setView([32.6539, 51.6660], 13);
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             attribution: '© OpenStreetMap contributors'
         }).addTo(map);
@@ -97,6 +100,16 @@
             } else {
                 marker = L.marker(e.latlng).addTo(map);
             }
+
+            // گرفتن آدرس از سرویس Nominatim
+            fetch(`https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${lat}&lon=${lng}`)
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('address').value = data.display_name || "آدرس پیدا نشد";
+                })
+                .catch(err => {
+                    document.getElementById('address').value = "خطا در دریافت آدرس";
+                });
         });
     </script>
 </body>

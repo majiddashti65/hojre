@@ -33,6 +33,7 @@ def register():
     password = request.form.get('password')
     latitude = request.form.get('latitude')
     longitude = request.form.get('longitude')
+    address = request.form.get('address')
 
 
     new_shop = {
@@ -43,7 +44,8 @@ def register():
         "username": username,
         "password": password,
         "latitude": latitude,
-        "longitude": longitude
+        "longitude": longitude,
+        "address": address
 
     }
 
