@@ -197,6 +197,10 @@ def delete_product(shop_id, product_id):
 
 
 
+
+
+
+
 @app.route('/product/<int:shop_id>/edit/<int:product_id>', methods=['GET', 'POST'])
 def edit_product(shop_id, product_id):
     product_file = f'products_{shop_id}.json'
@@ -208,20 +212,45 @@ def edit_product(shop_id, product_id):
         return "⛔ فایل محصول یافت نشد", 404
 
     if 0 <= product_id < len(products):
-        if request.method == 'POST':
-            products[product_id]['product_name'] = request.form.get('product_name')
-            products[product_id]['price'] = request.form.get('price')
-            products[product_id]['discount'] = request.form.get('discount') if request.form.get('has_discount') else None
+        product = products[product_id]
 
+        if request.method == 'POST':
+            # به‌روزرسانی اطلاعات متنی
+            product['product_name'] = request.form.get('product_name')
+            product['price'] = request.form.get('price')
+            product['discount'] = request.form.get('discount') if request.form.get('has_discount') else None
+
+            # حذف عکس‌هایی که تیک خوردن
+            keep_images = []
+            for idx, img in enumerate(product['images']):
+                if request.form.get(f'remove_image_{idx}') != 'on':
+                    keep_images.append(img)
+                else:
+                    print(f"✅ حذف عکس: {img}")
+                    # در صورت نیاز: os.remove(img) ← اگه بخوای عکس حذف فیزیکی هم بشه
+
+            product['images'] = keep_images
+
+            # اضافه کردن عکس‌های جدید
+            new_images = request.files.getlist('new_images')
+            for image in new_images:
+                if image and image.filename:
+                    filename = secure_filename(image.filename)
+                    filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+                    image.save(filepath)
+                    product['images'].append(filepath)
+
+            # ذخیره فایل
+            products[product_id] = product
             with open(product_file, 'w', encoding='utf-8') as f:
                 json.dump(products, f, ensure_ascii=False, indent=2)
 
             return redirect(url_for('show_products', shop_id=shop_id))
-        else:
-            product = products[product_id]
-            return render_template("edit_product.html", product=product, shop_id=shop_id, product_id=product_id)
+
+        return render_template("edit_product.html", product=product, shop_id=shop_id, product_id=product_id)
     else:
         return "⛔ شناسه محصول نامعتبر", 404
+
 
 
 

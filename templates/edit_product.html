@@ -6,7 +6,8 @@
 </head>
 <body dir="rtl">
     <h2>✏️ ویرایش محصول</h2>
-    <form method="POST">
+    <form method="POST" enctype="multipart/form-data">
+
         <label>نام کالا:</label><br>
         <input type="text" name="product_name" value="{{ product.product_name }}" required><br><br>
 
@@ -14,15 +15,27 @@
         <input type="number" name="price" value="{{ product.price }}" required><br><br>
 
         <label><input type="checkbox" name="has_discount" {% if product.discount %}checked{% endif %}> تخفیف دارد؟</label><br>
+        <label>مبلغ تخفیف:</label><br>
+        <input type="number" name="discount" value="{{ product.discount }}"><br><br>
 
-        <div id="discount_box">
-            <label>مبلغ تخفیف:</label><br>
-            <input type="number" name="discount" value="{{ product.discount }}"><br><br>
-        </div>
+        <h4>📷 عکس‌های فعلی:</h4>
+        {% for img in product.images %}
+            <div style="margin-bottom:10px;">
+                <img src="/{{ img }}" width="100">
+                <label>
+                    <input type="checkbox" name="remove_image_{{ loop.index0 }}">
+                    حذف این عکس
+                </label>
+            </div>
+        {% endfor %}
+
+        <hr>
+        <label>➕ عکس‌های جدید:</label><br>
+        <input type="file" name="new_images" multiple accept="image/*"><br><br>
 
         <input type="submit" value="ذخیره تغییرات">
     </form>
 
-    <br><a href="/products/{{ shop_id }}">بازگشت</a>
+    <br><a href="/products/{{ shop_id }}">بازگشت به لیست محصولات</a>
 </body>
 </html>
