@@ -1,3 +1,4 @@
+
 from flask import Flask, request, render_template, redirect, url_for, session, abort
 from werkzeug.utils import secure_filename
 import os
@@ -12,13 +13,13 @@ app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
 DATA_FILE = 'hojreh_data.json'
 
-# تابع بررسی مجوز
+
 def check_owner(shop_id):
     if 'shop_id' not in session or session['shop_id'] != shop_id:
         abort(403)
 
 
-@app.route('/', methods=['GET'])
+@app.route('/')
 def home():
     return render_template("index.html")
 
@@ -77,6 +78,12 @@ def login():
     return render_template('login.html')
 
 
+@app.route('/logout')
+def logout():
+    session.clear()
+    return redirect(url_for('home'))
+
+
 @app.route('/shops')
 def show_shops():
     if os.path.exists(DATA_FILE):
@@ -102,28 +109,9 @@ def shop_detail(shop_id):
         return "⛔️ حجره‌ای با این شناسه پیدا نشد", 404
 
 
-@app.route('/delete/<int:shop_id>')
-def delete_shop(shop_id):
-check_owner(shop_id)
-
-    if os.path.exists(DATA_FILE):
-        with open(DATA_FILE, 'r', encoding='utf-8') as f:
-            data = json.load(f)
-    else:
-        data = []
-
-    if 0 <= shop_id < len(data):
-        deleted = data.pop(shop_id)
-        with open(DATA_FILE, 'w', encoding='utf-8') as f:
-            json.dump(data, f, ensure_ascii=False, indent=2)
-        return render_template("delete_success.html", shop_name=deleted['shop_name'])
-    else:
-        return "⛔ شناسه نامعتبر", 404
-
-
 @app.route('/edit/<int:shop_id>', methods=['GET', 'POST'])
 def edit_shop(shop_id):
-check_owner(shop_id)
+    check_owner(shop_id)
     if os.path.exists(DATA_FILE):
         with open(DATA_FILE, 'r', encoding='utf-8') as f:
             data = json.load(f)
@@ -147,155 +135,27 @@ check_owner(shop_id)
         return "⛔ شناسه حجره نامعتبر است", 404
 
 
-@app.route('/product/<int:shop_id>', methods=['GET', 'POST'])
-def add_product(shop_id):
+@app.route('/delete/<int:shop_id>')
+def delete_shop(shop_id):
     check_owner(shop_id)
-
-    product_file = f'products_{shop_id}.json'
-
-    if request.method == 'POST':
-        product_name = request.form.get('product_name')
-        price = request.form.get('price')
-        discount = request.form.get('discount') if request.form.get('has_discount') else None
-
-        images = request.files.getlist('images')
-        image_paths = []
-
-        for image in images[:3]:
-            if image.filename:
-                filename = secure_filename(image.filename)
-                filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
-                image.save(filepath)
-                image_paths.append(filepath)
-
-        new_product = {
-            "product_name": product_name,
-            "price": price,
-            "discount": discount,
-            "images": image_paths
-        }
-
-        if os.path.exists(product_file):
-            with open(product_file, 'r', encoding='utf-8') as f:
-                products = json.load(f)
-        else:
-            products = []
-
-        products.append(new_product)
-
-        with open(product_file, 'w', encoding='utf-8') as f:
-            json.dump(products, f, ensure_ascii=False, indent=2)
-
-        return redirect(url_for('show_products', shop_id=shop_id))
-
-    return render_template("add_product.html", shop_id=shop_id)
-
-
-@app.route('/products/<int:shop_id>')
-def show_products(shop_id):
-    check_owner(shop_id)
-
-    product_file = f'products_{shop_id}.json'
-
-    if os.path.exists(product_file):
-        with open(product_file, 'r', encoding='utf-8') as f:
-            products = json.load(f)
+    if os.path.exists(DATA_FILE):
+        with open(DATA_FILE, 'r', encoding='utf-8') as f:
+            data = json.load(f)
     else:
-        products = []
+        data = []
 
-    return render_template("show_products.html", products=products, shop_id=shop_id)
-
-
-@app.route('/product/<int:shop_id>/delete/<int:product_id>')
-def delete_product(shop_id, product_id):
-    check_owner(shop_id)
-
-    product_file = f'products_{shop_id}.json'
-
-    if os.path.exists(product_file):
-        with open(product_file, 'r', encoding='utf-8') as f:
-            products = json.load(f)
+    if 0 <= shop_id < len(data):
+        deleted = data.pop(shop_id)
+        with open(DATA_FILE, 'w', encoding='utf-8') as f:
+            json.dump(data, f, ensure_ascii=False, indent=2)
+        return render_template("delete_success.html", shop_name=deleted['shop_name'])
     else:
-        products = []
-
-    if 0 <= product_id < len(products):
-        products.pop(product_id)
-        with open(product_file, 'w', encoding='utf-8') as f:
-            json.dump(products, f, ensure_ascii=False, indent=2)
-
-    return redirect(url_for('show_products', shop_id=shop_id))
-
-
-@app.route('/product/<int:shop_id>/edit/<int:product_id>', methods=['GET', 'POST'])
-def edit_product(shop_id, product_id):
-    check_owner(shop_id)
-
-    product_file = f'products_{shop_id}.json'
-
-    if os.path.exists(product_file):
-        with open(product_file, 'r', encoding='utf-8') as f:
-            products = json.load(f)
-    else:
-        return "⛔ فایل محصول یافت نشد", 404
-
-    if 0 <= product_id < len(products):
-        product = products[product_id]
-
-        if request.method == 'POST':
-            product['product_name'] = request.form.get('product_name')
-            product['price'] = request.form.get('price')
-            product['discount'] = request.form.get('discount') if request.form.get('has_discount') else None
-
-            keep_images = []
-            for idx, img in enumerate(product['images']):
-                if request.form.get(f'remove_image_{idx}') != 'on':
-                    keep_images.append(img)
-
-            product['images'] = keep_images
-
-            new_images = request.files.getlist('new_images')
-            for image in new_images:
-                if image and image.filename:
-                    filename = secure_filename(image.filename)
-                    filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
-                    image.save(filepath)
-                    product['images'].append(filepath)
-
-            products[product_id] = product
-            with open(product_file, 'w', encoding='utf-8') as f:
-                json.dump(products, f, ensure_ascii=False, indent=2)
-
-            return redirect(url_for('show_products', shop_id=shop_id))
-
-        return render_template("edit_product.html", product=product, shop_id=shop_id, product_id=product_id)
-    else:
-        return "⛔ شناسه محصول نامعتبر", 404
-
-
-@app.route('/shop/<int:shop_id>/products')
-def shop_store(shop_id):
-    product_file = f'products_{shop_id}.json'
-
-    if os.path.exists(product_file):
-        with open(product_file, 'r', encoding='utf-8') as f:
-            products = json.load(f)
-    else:
-        products = []
-
-    return render_template("shop_store.html", products=products, shop_id=shop_id)
+        return "⛔ شناسه نامعتبر", 404
 
 
 @app.errorhandler(403)
 def forbidden(e):
     return render_template("403.html"), 403
-
-
-
-@app.route('/logout')
-def logout():
-    session.clear()
-    return redirect(url_for('home'))
-
 
 
 if __name__ == '__main__':
