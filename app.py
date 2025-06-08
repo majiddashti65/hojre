@@ -1,16 +1,21 @@
-from flask import Flask, request, render_template, redirect, url_for, session
+from flask import Flask, request, render_template, redirect, url_for, session, abort
 from werkzeug.utils import secure_filename
 import os
 import json
 
 app = Flask(__name__)
-app.secret_key = 'very_secret_key_hojreh'  # برای مدیریت session
+app.secret_key = 'very_secret_key_hojreh'
 
 UPLOAD_FOLDER = 'static/uploads'
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
 DATA_FILE = 'hojreh_data.json'
+
+# تابع بررسی مجوز
+def check_owner(shop_id):
+    if 'shop_id' not in session or session['shop_id'] != shop_id:
+        abort(403)
 
 
 @app.route('/', methods=['GET'])
@@ -141,6 +146,8 @@ def edit_shop(shop_id):
 
 @app.route('/product/<int:shop_id>', methods=['GET', 'POST'])
 def add_product(shop_id):
+    check_owner(shop_id)
+
     product_file = f'products_{shop_id}.json'
 
     if request.method == 'POST':
@@ -183,6 +190,8 @@ def add_product(shop_id):
 
 @app.route('/products/<int:shop_id>')
 def show_products(shop_id):
+    check_owner(shop_id)
+
     product_file = f'products_{shop_id}.json'
 
     if os.path.exists(product_file):
@@ -196,6 +205,8 @@ def show_products(shop_id):
 
 @app.route('/product/<int:shop_id>/delete/<int:product_id>')
 def delete_product(shop_id, product_id):
+    check_owner(shop_id)
+
     product_file = f'products_{shop_id}.json'
 
     if os.path.exists(product_file):
@@ -214,6 +225,8 @@ def delete_product(shop_id, product_id):
 
 @app.route('/product/<int:shop_id>/edit/<int:product_id>', methods=['GET', 'POST'])
 def edit_product(shop_id, product_id):
+    check_owner(shop_id)
+
     product_file = f'products_{shop_id}.json'
 
     if os.path.exists(product_file):
@@ -267,6 +280,11 @@ def shop_store(shop_id):
         products = []
 
     return render_template("shop_store.html", products=products, shop_id=shop_id)
+
+
+@app.errorhandler(403)
+def forbidden(e):
+    return render_template("403.html"), 403
 
 
 if __name__ == '__main__':
