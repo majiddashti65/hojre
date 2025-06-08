@@ -21,7 +21,8 @@
         <h4>📷 عکس‌های فعلی:</h4>
         {% for img in product.images %}
             <div style="margin-bottom:10px;">
-                <img src="/{{ img }}" width="100">
+                <img src="{{ '/' + img }}" width="100">
+
                 <label>
                     <input type="checkbox" name="remove_image_{{ loop.index0 }}">
                     حذف این عکس
