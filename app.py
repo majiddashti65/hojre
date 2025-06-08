@@ -77,6 +77,9 @@ def login():
     return render_template('login.html')
 
 
+
+
+
 @app.route('/logout')
 def logout():
     session.clear()
@@ -154,19 +157,22 @@ def edit_shop(shop_id):
         return "⛔ شناسه حجره نامعتبر است", 404
 
 
+
+
+
 @app.route('/products/<int:shop_id>')
 def show_products(shop_id):
     check_owner(shop_id)
-
     product_file = f'products_{shop_id}.json'
-
     if os.path.exists(product_file):
         with open(product_file, 'r', encoding='utf-8') as f:
             products = json.load(f)
     else:
         products = []
-
     return render_template("show_products.html", products=products, shop_id=shop_id)
+
+
+
 
 
 @app.errorhandler(403)
