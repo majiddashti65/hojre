@@ -41,7 +41,7 @@ def register():
         "category_main": main_category,
         "category_sub": sub_category,
         "username": username,
-        "password": password
+        "password": password,
         "latitude": latitude,
         "longitude": longitude
 
