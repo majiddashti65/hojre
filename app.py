@@ -1,12 +1,10 @@
-from flask import session
-app.secret_key = 'your_secret_key_here'  # کلید برای session
-
-from flask import Flask, request, render_template, redirect, url_for
+from flask import Flask, request, render_template, redirect, url_for, session
 from werkzeug.utils import secure_filename
 import os
 import json
 
 app = Flask(__name__)
+app.secret_key = 'very_secret_key_hojreh'  # برای مدیریت session
 
 UPLOAD_FOLDER = 'static/uploads'
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
@@ -52,6 +50,28 @@ def register():
     return f"✅ حجره با نام {shop_name} ثبت شد!"
 
 
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    if request.method == 'POST':
+        username = request.form.get('username')
+        password = request.form.get('password')
+
+        if os.path.exists(DATA_FILE):
+            with open(DATA_FILE, 'r', encoding='utf-8') as f:
+                data = json.load(f)
+        else:
+            data = []
+
+        for i, shop in enumerate(data):
+            if shop['username'] == username and shop['password'] == password:
+                session['shop_id'] = i
+                return redirect(url_for('show_products', shop_id=i))
+
+        return render_template('login.html', error="نام کاربری یا رمز اشتباه است.")
+
+    return render_template('login.html')
+
+
 @app.route('/shops')
 def show_shops():
     if os.path.exists(DATA_FILE):
@@ -89,7 +109,6 @@ def delete_shop(shop_id):
         deleted = data.pop(shop_id)
         with open(DATA_FILE, 'w', encoding='utf-8') as f:
             json.dump(data, f, ensure_ascii=False, indent=2)
-        print(f"🗑️ حجره حذف شد: {deleted['shop_name']}")
         return render_template("delete_success.html", shop_name=deleted['shop_name'])
     else:
         return "⛔ شناسه نامعتبر", 404
@@ -186,10 +205,9 @@ def delete_product(shop_id, product_id):
         products = []
 
     if 0 <= product_id < len(products):
-        deleted = products.pop(product_id)
+        products.pop(product_id)
         with open(product_file, 'w', encoding='utf-8') as f:
             json.dump(products, f, ensure_ascii=False, indent=2)
-        print(f"🗑️ محصول حذف شد: {deleted['product_name']}")
 
     return redirect(url_for('show_products', shop_id=shop_id))
 
@@ -216,8 +234,6 @@ def edit_product(shop_id, product_id):
             for idx, img in enumerate(product['images']):
                 if request.form.get(f'remove_image_{idx}') != 'on':
                     keep_images.append(img)
-                else:
-                    print(f"✅ حذف عکس: {img}")
 
             product['images'] = keep_images
 
@@ -251,33 +267,6 @@ def shop_store(shop_id):
         products = []
 
     return render_template("shop_store.html", products=products, shop_id=shop_id)
-
-
-
-@app.route('/login', methods=['GET', 'POST'])
-def login():
-    if request.method == 'POST':
-        username = request.form.get('username')
-        password = request.form.get('password')
-
-        if os.path.exists(DATA_FILE):
-            with open(DATA_FILE, 'r', encoding='utf-8') as f:
-                data = json.load(f)
-        else:
-            data = []
-
-        for i, shop in enumerate(data):
-            if shop['username'] == username and shop['password'] == password:
-                session['shop_id'] = i  # شناسه حجره
-                return redirect(url_for('show_products', shop_id=i))
-
-        return render_template('login.html', error="نام کاربری یا رمز اشتباه است.")
-
-    return render_template('login.html')
-
-
-
-
 
 
 if __name__ == '__main__':
