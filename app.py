@@ -123,7 +123,8 @@ check_owner(shop_id)
 
 @app.route('/edit/<int:shop_id>', methods=['GET', 'POST'])
 def edit_shop(shop_id):
-check_owner(shop_id)
+    check_owner(shop_id)
+
     if os.path.exists(DATA_FILE):
         with open(DATA_FILE, 'r', encoding='utf-8') as f:
             data = json.load(f)
