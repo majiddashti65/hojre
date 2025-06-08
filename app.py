@@ -476,6 +476,41 @@ def checkout():
 
 
 
+@app.route('/order/<int:order_id>')
+def order_detail(order_id):
+    if 'shop_id' not in session:
+        return redirect(url_for('login'))
+
+    shop_id = session['shop_id']
+
+    # خواندن سفارش‌ها
+    if not os.path.exists("orders.json"):
+        return "⛔ فایل سفارش‌ها یافت نشد", 404
+
+    with open("orders.json", "r", encoding="utf-8") as f:
+        orders = json.load(f)
+
+    if order_id >= len(orders):
+        return "⛔ شناسه سفارش نامعتبر", 404
+
+    order = orders[order_id]
+
+    # بررسی اینکه آیا این سفارش مربوط به حجره فعلی هست یا نه
+    related = False
+    for item in order['items']:
+        if item.get('shop_id') == shop_id:
+            related = True
+            break
+
+    if not related:
+        return "⛔ شما به این سفارش دسترسی ندارید", 403
+
+    return render_template("order_detail.html", order=order, order_id=order_id)
+
+
+
+
+
 
 
 

@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="fa">
+<head>
+    <meta charset="UTF-8">
+    <title>📦 جزئیات سفارش</title>
+</head>
+<body dir="rtl">
+    <h2>📦 جزئیات سفارش شماره {{ order_id + 1 }}</h2>
+
+    <h3>👤 اطلاعات مشتری</h3>
+    <ul>
+        <li><strong>نام:</strong> {{ order.name }}</li>
+        <li><strong>شماره تماس:</strong> {{ order.phone }}</li>
+        <li><strong>آدرس:</strong> {{ order.address }}</li>
+        {% if order.notes %}
+        <li><strong>توضیحات:</strong> {{ order.notes }}</li>
+        {% endif %}
+        <li><strong>تاریخ ثبت:</strong> {{ order.datetime }}</li>
+    </ul>
+
+    <h3>🛍 محصولات سفارش داده شده:</h3>
+    <ul>
+        {% for item in order["items"] %}
+            <li style="margin-bottom: 15px;">
+                <strong>{{ item.product_name }}</strong><br>
+                قیمت: {{ item.price }} تومان
+                {% if item.discount %}
+                    <span style="color:red;">(تخفیف: {{ item.discount }} تومان)</span>
+                {% endif %}
+                <br>
+                {% if item.images %}
+                    <img src="/{{ item.images[0] }}" width="120" height="120">
+                {% endif %}
+            </li>
+        {% endfor %}
+    </ul>
+
+    <p><strong>💰 مبلغ کل قابل پرداخت:</strong> {{ order.total }} تومان</p>
+
+    <hr>
+    <a href="/dashboard">🔙 بازگشت به داشبورد</a>
+</body>
+</html>
