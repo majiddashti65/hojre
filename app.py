@@ -323,6 +323,27 @@ def edit_product(shop_id, product_id):
 
 
 
+@app.route('/product/<int:shop_id>/delete/<int:product_id>')
+def delete_product(shop_id, product_id):
+    product_file = f'products_{shop_id}.json'
+
+    if os.path.exists(product_file):
+        with open(product_file, 'r', encoding='utf-8') as f:
+            products = json.load(f)
+    else:
+        products = []
+
+    if 0 <= product_id < len(products):
+        products.pop(product_id)
+        with open(product_file, 'w', encoding='utf-8') as f:
+            json.dump(products, f, ensure_ascii=False, indent=2)
+
+    return redirect(url_for('show_products', shop_id=shop_id))
+
+
+
+
+
 
 
 
