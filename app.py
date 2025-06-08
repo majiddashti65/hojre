@@ -175,6 +175,59 @@ def show_products(shop_id):
 
 
 
+
+
+@app.route('/product/<int:shop_id>', methods=['GET', 'POST'])
+def add_product(shop_id):
+    check_owner(shop_id)
+    product_file = f'products_{shop_id}.json'
+
+    if request.method == 'POST':
+        product_name = request.form.get('product_name')
+        price = request.form.get('price')
+        discount = request.form.get('discount') if request.form.get('has_discount') else None
+
+        images = request.files.getlist('images')
+        image_paths = []
+
+        for image in images[:3]:
+            if image.filename:
+                filename = secure_filename(image.filename)
+                filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+                image.save(filepath)
+                image_paths.append(filepath)
+
+        new_product = {
+            "product_name": product_name,
+            "price": price,
+            "discount": discount,
+            "images": image_paths
+        }
+
+        if os.path.exists(product_file):
+            with open(product_file, 'r', encoding='utf-8') as f:
+                products = json.load(f)
+        else:
+            products = []
+
+        products.append(new_product)
+
+        with open(product_file, 'w', encoding='utf-8') as f:
+            json.dump(products, f, ensure_ascii=False, indent=2)
+
+        return redirect(url_for('show_products', shop_id=shop_id))
+
+    return render_template("add_product.html", shop_id=shop_id)
+
+
+
+
+
+
+
+
+
+
 @app.errorhandler(403)
 def forbidden(e):
     return render_template("403.html"), 403
