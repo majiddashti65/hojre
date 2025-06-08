@@ -27,6 +27,37 @@
         <li><a href="/logout">🚪 خروج از حساب</a></li>
     </ul>
 
+    <h3>📦 سفارش‌های مشتریان:</h3>
+    {% if orders %}
+        <table border="1" cellpadding="5" cellspacing="0">
+            <thead>
+                <tr>
+                    <th>نام مشتری</th>
+                    <th>مبلغ کل</th>
+                    <th>تعداد محصولات</th>
+                    <th>تاریخ سفارش</th>
+                    <th>عملیات</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for order in orders %}
+                    <tr>
+                        <td>{{ order.name }}</td>
+                        <td>{{ order.total }} تومان</td>
+                        <td>{{ order.items|length }}</td>
+                        <td>{{ order.datetime }}</td>
+                        <td>
+                            <a href="#">مشاهده جزئیات</a> <!-- در آینده می‌تونیم این لینک رو فعال کنیم -->
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <p>⛔ هیچ سفارشی برای شما ثبت نشده است.</p>
+    {% endif %}
+
     <br>
+    <a href="/">🔙 بازگشت به صفحه اصلی</a>
 </body>
 </html>

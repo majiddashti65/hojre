@@ -278,27 +278,36 @@ def dashboard():
 
     shop_id = session['shop_id']
 
-    # خواندن اطلاعات حجره
-    if os.path.exists(DATA_FILE):
-        with open(DATA_FILE, 'r', encoding='utf-8') as f:
-            shops = json.load(f)
-    else:
-        shops = []
+    with open(DATA_FILE, 'r', encoding='utf-8') as f:
+        shops = json.load(f)
 
-    if 0 <= shop_id < len(shops):
-        shop = shops[shop_id]
-    else:
-        return "⛔ اطلاعات حجره پیدا نشد", 404
+    shop = shops[shop_id]
 
-    # محصولات حجره
     product_file = f'products_{shop_id}.json'
+    products = []
     if os.path.exists(product_file):
         with open(product_file, 'r', encoding='utf-8') as f:
             products = json.load(f)
-    else:
-        products = []
 
-    return render_template("dashboard.html", shop=shop, shop_id=shop_id, product_count=len(products))
+    # 🧾 فیلتر سفارش‌های مربوط به این حجره
+    orders = []
+    if os.path.exists("orders.json"):
+        with open("orders.json", "r", encoding="utf-8") as f:
+            all_orders = json.load(f)
+
+        for order in all_orders:
+            for item in order['items']:
+                if item.get('shop_id') == shop_id:
+                    orders.append(order)
+                    break  # اگر حداقل یکی از محصولات مربوط به این حجره بود، سفارش رو بیار
+
+    return render_template("dashboard.html", shop=shop, shop_id=shop_id, product_count=len(products), orders=orders)
+
+
+
+
+
+
 
 
 @app.route('/product/<int:shop_id>/edit/<int:product_id>', methods=['GET', 'POST'])
@@ -345,6 +354,10 @@ def edit_product(shop_id, product_id):
         return render_template("edit_product.html", product=product, shop_id=shop_id, product_id=product_id)
     else:
         return "⛔ شناسه محصول نامعتبر", 404
+
+
+
+
 
 
 
@@ -412,6 +425,8 @@ def cart():
 
 
 
+import datetime
+
 @app.route('/checkout', methods=['GET', 'POST'])
 def checkout():
     cart = session.get('cart', [])
@@ -427,12 +442,34 @@ def checkout():
         address = request.form.get('address')
         notes = request.form.get('notes')
 
-        # در آینده: ذخیره سفارش در فایل یا دیتابیس
+        # ✍️ ذخیره سفارش در فایل JSON
+        order = {
+            "name": name,
+            "phone": phone,
+            "address": address,
+            "notes": notes,
+            "total": total,
+            "items": cart,
+            "datetime": datetime.datetime.now().isoformat()
+        }
 
-        session.pop('cart', None)  # سبد خرید رو پاک کن
+        if os.path.exists("orders.json"):
+            with open("orders.json", "r", encoding="utf-8") as f:
+                orders = json.load(f)
+        else:
+            orders = []
+
+        orders.append(order)
+
+        with open("orders.json", "w", encoding="utf-8") as f:
+            json.dump(orders, f, ensure_ascii=False, indent=2)
+
+        session.pop('cart', None)
+
         return render_template("checkout_success.html", name=name, total=total)
 
     return render_template("checkout.html", cart=cart, total=total)
+
 
 
 
