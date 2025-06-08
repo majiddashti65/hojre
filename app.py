@@ -104,7 +104,7 @@ def shop_detail(shop_id):
 
 @app.route('/delete/<int:shop_id>')
 def delete_shop(shop_id):
-check_owner(shop_id)
+	check_owner(shop_id)
 
     if os.path.exists(DATA_FILE):
         with open(DATA_FILE, 'r', encoding='utf-8') as f:
