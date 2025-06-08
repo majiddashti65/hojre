@@ -44,7 +44,7 @@ sub_category = request.form.get('sub_category')
 
 
         "category_main": main_category,
-"category_sub": sub_category,
+        "category_sub": sub_category,
 
 
 
