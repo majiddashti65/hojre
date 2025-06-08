@@ -411,7 +411,12 @@ def add_to_cart(shop_id, product_id):
 
 @app.route('/cart')
 def cart():
-    cart = session.get('cart', [])
+    shop_id = session.get("current_shop_id")
+
+    if shop_id is None:
+        return "⛔️ شناسه حجره یافت نشد", 400
+
+    cart = session.get('cart', {}).get(str(shop_id), [])
     total = 0
 
     for item in cart:
@@ -419,7 +424,7 @@ def cart():
         discount = int(item.get('discount', 0)) if item.get('discount') else 0
         total += price - discount
 
-    return render_template('cart.html', cart=cart, total=total)
+    return render_template('cart.html', cart=cart, total=total, shop_id=shop_id)
 
 
 

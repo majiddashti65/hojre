@@ -2,42 +2,59 @@
 <html lang="fa">
 <head>
     <meta charset="UTF-8">
-    <title>🧺 سبد خرید</title>
+    <title>🛒 سبد خرید</title>
 </head>
 <body dir="rtl">
-    <h2>🧺 سبد خرید شما</h2>
+    <h2>🛒 سبد خرید حجره</h2>
 
     {% if cart %}
         <ul>
-        {% for item in cart %}
-            <li>
-                <strong>{{ item.product_name }}</strong><br>
-                قیمت: {{ item.price }} تومان
-                {% if item.discount %}
-                    <span style="color: red;">(تخفیف: {{ item.discount }} تومان)</span>
-                {% endif %}
-                <br>
-                {% if item.images %}
-                    <img src="/{{ item.images[0] }}" alt="تصویر" width="100">
-                {% endif %}
-                <br>
-                <!-- حذف محصول از سبد (اختیاری برای مرحله بعد) -->
-                <!-- <form method="post" action="/remove_from_cart/{{ loop.index0 }}">
-                    <button type="submit">🗑 حذف</button>
-                </form> -->
-            </li>
-            <hr>
-        {% endfor %}
+            {% set total = 0 %}
+            {% for item in cart %}
+                {% set price = item.price | int %}
+                {% set discount = item.discount | int if item.discount else 0 %}
+                {% set final_price = price - discount %}
+                {% set total = total + final_price %}
+
+                <li style="margin-bottom: 15px;">
+                    <strong>{{ item.product_name }}</strong><br>
+                    قیمت: {{ price }} تومان
+                    {% if item.discount %}
+                        <span style="color:red;">(تخفیف: {{ discount }} تومان)</span>
+                    {% endif %}
+                    <br>
+                    {% if item.images %}
+                        <img src="/{{ item.images[0] }}" width="100" height="100">
+                    {% endif %}
+                </li>
+            {% endfor %}
         </ul>
 
-        <h3>💰 جمع کل: {{ total }} تومان</h3>
+        <p><strong>💰 مجموع قابل پرداخت: {{ total }} تومان</strong></p>
 
-        <a href="/checkout"><button>✅ ادامه تسویه‌حساب</button></a>
+        <hr>
+        <h3>📋 اطلاعات مشتری:</h3>
+        <form method="post" action="/checkout/{{ shop_id }}">
+            <label>👤 نام:</label><br>
+            <input type="text" name="name" required><br><br>
+
+            <label>📱 شماره تماس:</label><br>
+            <input type="text" name="phone" required><br><br>
+
+            <label>📍 آدرس:</label><br>
+            <textarea name="address" rows="3" required></textarea><br><br>
+
+            <label>📝 توضیحات (اختیاری):</label><br>
+            <textarea name="notes" rows="2"></textarea><br><br>
+
+            <input type="submit" value="ثبت سفارش">
+        </form>
+
     {% else %}
-        <p>⛔ سبد خرید شما خالی است.</p>
+        <p>سبد خرید شما خالی است.</p>
     {% endif %}
 
     <br>
-    <a href="/shops">🔙 بازگشت به فروشگاه‌ها</a>
+    <a href="/shop/{{ shop_id }}/products">🔙 بازگشت به فروشگاه</a>
 </body>
 </html>
