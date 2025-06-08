@@ -234,9 +234,16 @@ def add_product(shop_id):
 
 
 
+
+
 @app.route('/shop/<int:shop_id>/products')
 def shop_store(shop_id):
     product_file = f'products_{shop_id}.json'
+
+    name_query = request.args.get('name', '').strip()
+    discount_only = request.args.get('discount_only') == 'on'
+    min_price = request.args.get('min_price', '').strip()
+    max_price = request.args.get('max_price', '').strip()
 
     if os.path.exists(product_file):
         with open(product_file, 'r', encoding='utf-8') as f:
@@ -244,7 +251,23 @@ def shop_store(shop_id):
     else:
         products = []
 
-    return render_template("shop_store.html", products=products, shop_id=shop_id)
+    filtered = []
+    for product in products:
+        if name_query and name_query not in product['product_name']:
+            continue
+        if discount_only and not product.get('discount'):
+            continue
+        price = int(product['price']) if product['price'].isdigit() else 0
+        if min_price and price < int(min_price):
+            continue
+        if max_price and price > int(max_price):
+            continue
+        filtered.append(product)
+
+    return render_template("shop_store.html", products=filtered, shop_id=shop_id)
+
+
+
 
 
 

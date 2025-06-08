@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="fa">
+<head>
+    <meta charset="UTF-8">
+    <title>🛍 فروشگاه حجره</title>
+</head>
+<body dir="rtl">
+    <h2>🛒 فروشگاه حجره</h2>
+
+    <!-- 🔍 فرم جستجو -->
+    <form method="get" action="/shop/{{ shop_id }}/products">
+        <label>🔎 نام محصول:</label>
+        <input type="text" name="name" value="{{ request.args.get('name', '') }}">
+
+        <label>💸 فقط محصولات دارای تخفیف:</label>
+        <input type="checkbox" name="discount_only" {% if request.args.get('discount_only') == 'on' %}checked{% endif %}>
+
+        <label>💰 قیمت از:</label>
+        <input type="number" name="min_price" value="{{ request.args.get('min_price', '') }}" style="width: 80px;"> تومان
+
+        <label>تا:</label>
+        <input type="number" name="max_price" value="{{ request.args.get('max_price', '') }}" style="width: 80px;"> تومان
+
+        <input type="submit" value="جستجو">
+    </form>
+
+    <hr>
+
+    {% if products %}
+        <ul>
+        {% for product in products %}
+            <li>
+                <strong>{{ product.product_name }}</strong><br>
+                قیمت: {{ product.price }} تومان
+                {% if product.discount %}
+                    <span style="color: red;">(تخفیف: {{ product.discount }} تومان)</span>
+                {% endif %}
+                <br>
+                {% if product.images %}
+                    <img src="/{{ product.images[0] }}" alt="تصویر" width="100">
+                {% endif %}
+            </li>
+            <hr>
+        {% endfor %}
+        </ul>
+    {% else %}
+        <p>⛔ محصولی با شرایط وارد شده پیدا نشد.</p>
+    {% endif %}
+
+    <a href="/shops">🔙 بازگشت به لیست حجره‌ها</a>
+</body>
+</html>
