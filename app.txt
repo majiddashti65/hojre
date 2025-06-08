@@ -19,17 +19,23 @@ def home():
     return render_template("index.html")
 
 
-# 📌 ثبت حجره
+
+
+
 @app.route('/register', methods=['POST'])
 def register():
     shop_name = request.form.get('shop_name')
     phone = request.form.get('phone')
     category = request.form.get('category')
+    username = request.form.get('username')
+    password = request.form.get('password')
 
     new_shop = {
         "shop_name": shop_name,
         "phone": phone,
-        "category": category
+        "category": category,
+        "username": username,
+        "password": password
     }
 
     if os.path.exists(DATA_FILE):
@@ -44,6 +50,11 @@ def register():
         json.dump(data, f, ensure_ascii=False, indent=2)
 
     return f"✅ حجره با نام {shop_name} ثبت شد!"
+
+
+
+
+
 
 
 # 📌 نمایش لیست حجره‌ها
