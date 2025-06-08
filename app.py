@@ -5,7 +5,6 @@ import json
 
 app = Flask(__name__)
 
-# تنظیمات مسیر آپلود عکس
 UPLOAD_FOLDER = 'static/uploads'
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
@@ -13,42 +12,25 @@ app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 DATA_FILE = 'hojreh_data.json'
 
 
-# 📌 صفحه اصلی
 @app.route('/', methods=['GET'])
 def home():
     return render_template("index.html")
-
-
-
 
 
 @app.route('/register', methods=['POST'])
 def register():
     shop_name = request.form.get('shop_name')
     phone = request.form.get('phone')
-
-
-
-  main_category = request.form.get('main_category')
-sub_category = request.form.get('sub_category')
-
-
-
-
+    main_category = request.form.get('main_category')
+    sub_category = request.form.get('sub_category')
     username = request.form.get('username')
     password = request.form.get('password')
 
     new_shop = {
         "shop_name": shop_name,
         "phone": phone,
-
-
         "category_main": main_category,
         "category_sub": sub_category,
-
-
-
-
         "username": username,
         "password": password
     }
@@ -67,12 +49,6 @@ sub_category = request.form.get('sub_category')
     return f"✅ حجره با نام {shop_name} ثبت شد!"
 
 
-
-
-
-
-
-# 📌 نمایش لیست حجره‌ها
 @app.route('/shops')
 def show_shops():
     if os.path.exists(DATA_FILE):
@@ -83,7 +59,6 @@ def show_shops():
     return render_template("shops.html", shops=data)
 
 
-# 📌 جزئیات هر حجره
 @app.route('/shop/<int:shop_id>')
 def shop_detail(shop_id):
     if os.path.exists(DATA_FILE):
@@ -99,7 +74,6 @@ def shop_detail(shop_id):
         return "⛔️ حجره‌ای با این شناسه پیدا نشد", 404
 
 
-# 📌 حذف حجره
 @app.route('/delete/<int:shop_id>')
 def delete_shop(shop_id):
     if os.path.exists(DATA_FILE):
@@ -118,7 +92,6 @@ def delete_shop(shop_id):
         return "⛔ شناسه نامعتبر", 404
 
 
-# 📌 ویرایش حجره
 @app.route('/edit/<int:shop_id>', methods=['GET', 'POST'])
 def edit_shop(shop_id):
     if os.path.exists(DATA_FILE):
@@ -131,7 +104,8 @@ def edit_shop(shop_id):
         if request.method == 'POST':
             data[shop_id]['shop_name'] = request.form.get('shop_name')
             data[shop_id]['phone'] = request.form.get('phone')
-            data[shop_id]['category'] = request.form.get('category')
+            data[shop_id]['category_main'] = request.form.get('main_category')
+            data[shop_id]['category_sub'] = request.form.get('sub_category')
 
             with open(DATA_FILE, 'w', encoding='utf-8') as f:
                 json.dump(data, f, ensure_ascii=False, indent=2)
@@ -143,7 +117,6 @@ def edit_shop(shop_id):
         return "⛔ شناسه حجره نامعتبر است", 404
 
 
-# 📌 ثبت محصول برای حجره
 @app.route('/product/<int:shop_id>', methods=['GET', 'POST'])
 def add_product(shop_id):
     product_file = f'products_{shop_id}.json'
@@ -186,7 +159,6 @@ def add_product(shop_id):
     return render_template("add_product.html", shop_id=shop_id)
 
 
-# 📌 نمایش محصولات حجره
 @app.route('/products/<int:shop_id>')
 def show_products(shop_id):
     product_file = f'products_{shop_id}.json'
@@ -198,8 +170,6 @@ def show_products(shop_id):
         products = []
 
     return render_template("show_products.html", products=products, shop_id=shop_id)
-
-
 
 
 @app.route('/product/<int:shop_id>/delete/<int:product_id>')
@@ -221,12 +191,6 @@ def delete_product(shop_id, product_id):
     return redirect(url_for('show_products', shop_id=shop_id))
 
 
-
-
-
-
-
-
 @app.route('/product/<int:shop_id>/edit/<int:product_id>', methods=['GET', 'POST'])
 def edit_product(shop_id, product_id):
     product_file = f'products_{shop_id}.json'
@@ -241,23 +205,19 @@ def edit_product(shop_id, product_id):
         product = products[product_id]
 
         if request.method == 'POST':
-            # به‌روزرسانی اطلاعات متنی
             product['product_name'] = request.form.get('product_name')
             product['price'] = request.form.get('price')
             product['discount'] = request.form.get('discount') if request.form.get('has_discount') else None
 
-            # حذف عکس‌هایی که تیک خوردن
             keep_images = []
             for idx, img in enumerate(product['images']):
                 if request.form.get(f'remove_image_{idx}') != 'on':
                     keep_images.append(img)
                 else:
                     print(f"✅ حذف عکس: {img}")
-                    # در صورت نیاز: os.remove(img) ← اگه بخوای عکس حذف فیزیکی هم بشه
 
             product['images'] = keep_images
 
-            # اضافه کردن عکس‌های جدید
             new_images = request.files.getlist('new_images')
             for image in new_images:
                 if image and image.filename:
@@ -266,7 +226,6 @@ def edit_product(shop_id, product_id):
                     image.save(filepath)
                     product['images'].append(filepath)
 
-            # ذخیره فایل
             products[product_id] = product
             with open(product_file, 'w', encoding='utf-8') as f:
                 json.dump(products, f, ensure_ascii=False, indent=2)
@@ -276,9 +235,6 @@ def edit_product(shop_id, product_id):
         return render_template("edit_product.html", product=product, shop_id=shop_id, product_id=product_id)
     else:
         return "⛔ شناسه محصول نامعتبر", 404
-
-
-
 
 
 @app.route('/shop/<int:shop_id>/products')
@@ -294,21 +250,6 @@ def shop_store(shop_id):
     return render_template("shop_store.html", products=products, shop_id=shop_id)
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-# 🔚 اجرای سرور
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 5000))
     app.run(host='0.0.0.0', port=port)
