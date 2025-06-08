@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="fa">
+<head>
+    <meta charset="UTF-8">
+    <title>🧱 لیست حجره‌ها</title>
+</head>
+<body dir="rtl">
+    <h2>🧱 لیست حجره‌های ثبت‌شده</h2>
+
+    {% if shops %}
+        <ul>
+        {% for shop in shops %}
+            <li>
+                <strong>{{ shop.shop_name }}</strong> - 📞 {{ shop.phone }}  
+                <br>
+                📁 دسته‌بندی: {{ shop.category_main }} / {{ shop.category_sub }}
+                <br>
+                <a href="/shop/{{ loop.index0 }}/products">🛒 مشاهده فروشگاه</a>
+            </li>
+            <hr>
+        {% endfor %}
+        </ul>
+    {% else %}
+        <p>⛔ هنوز هیچ حجره‌ای ثبت نشده است.</p>
+    {% endif %}
+
+    <br>
+    <a href="/">🔙 بازگشت به صفحه اصلی</a>
+</body>
+</html>
