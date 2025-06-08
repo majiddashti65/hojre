@@ -412,6 +412,32 @@ def cart():
 
 
 
+@app.route('/checkout', methods=['GET', 'POST'])
+def checkout():
+    cart = session.get('cart', [])
+    total = 0
+    for item in cart:
+        price = int(item.get('price', 0))
+        discount = int(item.get('discount', 0)) if item.get('discount') else 0
+        total += price - discount
+
+    if request.method == 'POST':
+        name = request.form.get('name')
+        phone = request.form.get('phone')
+        address = request.form.get('address')
+        notes = request.form.get('notes')
+
+        # در آینده: ذخیره سفارش در فایل یا دیتابیس
+
+        session.pop('cart', None)  # سبد خرید رو پاک کن
+        return render_template("checkout_success.html", name=name, total=total)
+
+    return render_template("checkout.html", cart=cart, total=total)
+
+
+
+
+
 
 
 
