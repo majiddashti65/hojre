@@ -10,17 +10,22 @@
 
 
 <ul>
+
+
 {% for shop in shops %}
-<li>
-    <strong><a href="/shop/{{ loop.index0 }}">{{ shop.shop_name }}</a></strong>
-    - {{ shop.phone }} ({{ shop.category }})
-    | <a href="/edit/{{ loop.index0 }}">✏️ ویرایش</a>
-    | <a href="/delete/{{ loop.index0 }}" onclick="return confirm('آیا مطمئنی می‌خواهی حذف کنی؟')">🗑️ حذف</a>
-    | <a href="/shop/{{ loop.index0 }}/products">🛍 فروشگاه</a>
-
-</li>
-
+    <li>
+        <strong>{{ shop.shop_name }}</strong> - {{ shop.phone }}
+        {% if session.shop_id is defined and session.shop_id == loop.index0 %}
+            | <a href="/edit/{{ loop.index0 }}">✏️ ویرایش</a>
+            | <a href="/delete/{{ loop.index0 }}" onclick="return confirm('حذف این حجره؟')">🗑️ حذف</a>
+        {% endif %}
+    </li>
 {% endfor %}
+
+
+
+
+
 </ul>
 
 
