@@ -19,6 +19,18 @@
                 {% for img in product.images %}
                     <img src="/{{ img }}" width="100">
                 {% endfor %}
+
+
+<a href="/product/{{ shop_id }}/edit/{{ loop.index0 }}">✏️ ویرایش</a> |
+<a href="/product/{{ shop_id }}/delete/{{ loop.index0 }}" onclick="return confirm('آیا مطمئن هستید؟')">🗑 حذف</a>
+
+
+
+
+
+
+
+
             </div>
         {% endfor %}
     {% else %}

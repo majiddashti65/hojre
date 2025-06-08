@@ -174,6 +174,67 @@ def show_products(shop_id):
     return render_template("show_products.html", products=products, shop_id=shop_id)
 
 
+
+
+@app.route('/product/<int:shop_id>/delete/<int:product_id>')
+def delete_product(shop_id, product_id):
+    product_file = f'products_{shop_id}.json'
+
+    if os.path.exists(product_file):
+        with open(product_file, 'r', encoding='utf-8') as f:
+            products = json.load(f)
+    else:
+        products = []
+
+    if 0 <= product_id < len(products):
+        deleted = products.pop(product_id)
+        with open(product_file, 'w', encoding='utf-8') as f:
+            json.dump(products, f, ensure_ascii=False, indent=2)
+        print(f"🗑️ محصول حذف شد: {deleted['product_name']}")
+
+    return redirect(url_for('show_products', shop_id=shop_id))
+
+
+
+
+@app.route('/product/<int:shop_id>/edit/<int:product_id>', methods=['GET', 'POST'])
+def edit_product(shop_id, product_id):
+    product_file = f'products_{shop_id}.json'
+
+    if os.path.exists(product_file):
+        with open(product_file, 'r', encoding='utf-8') as f:
+            products = json.load(f)
+    else:
+        return "⛔ فایل محصول یافت نشد", 404
+
+    if 0 <= product_id < len(products):
+        if request.method == 'POST':
+            products[product_id]['product_name'] = request.form.get('product_name')
+            products[product_id]['price'] = request.form.get('price')
+            products[product_id]['discount'] = request.form.get('discount') if request.form.get('has_discount') else None
+
+            with open(product_file, 'w', encoding='utf-8') as f:
+                json.dump(products, f, ensure_ascii=False, indent=2)
+
+            return redirect(url_for('show_products', shop_id=shop_id))
+        else:
+            product = products[product_id]
+            return render_template("edit_product.html", product=product, shop_id=shop_id, product_id=product_id)
+    else:
+        return "⛔ شناسه محصول نامعتبر", 404
+
+
+
+
+
+
+
+
+
+
+
+
+
 # 🔚 اجرای سرور
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 5000))

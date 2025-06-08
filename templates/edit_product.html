@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="fa">
+<head>
+    <meta charset="UTF-8">
+    <title>ویرایش محصول</title>
+</head>
+<body dir="rtl">
+    <h2>✏️ ویرایش محصول</h2>
+    <form method="POST">
+        <label>نام کالا:</label><br>
+        <input type="text" name="product_name" value="{{ product.product_name }}" required><br><br>
+
+        <label>قیمت (تومان):</label><br>
+        <input type="number" name="price" value="{{ product.price }}" required><br><br>
+
+        <label><input type="checkbox" name="has_discount" {% if product.discount %}checked{% endif %}> تخفیف دارد؟</label><br>
+
+        <div id="discount_box">
+            <label>مبلغ تخفیف:</label><br>
+            <input type="number" name="discount" value="{{ product.discount }}"><br><br>
+        </div>
+
+        <input type="submit" value="ذخیره تغییرات">
+    </form>
+
+    <br><a href="/products/{{ shop_id }}">بازگشت</a>
+</body>
+</html>
