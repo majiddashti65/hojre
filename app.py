@@ -178,6 +178,24 @@ def add_product(shop_id):
 
 
 
+@app.route('/products/<int:shop_id>')
+def show_products(shop_id):
+    product_file = f'products_{shop_id}.json'
+
+    if os.path.exists(product_file):
+        with open(product_file, 'r', encoding='utf-8') as f:
+            products = json.load(f)
+    else:
+        products = []
+
+    return render_template("show_products.html", products=products, shop_id=shop_id)
+
+
+
+
+
+
+
 
 
 
