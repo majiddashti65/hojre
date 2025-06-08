@@ -47,7 +47,7 @@
                         <td>{{ order["items"]|length }}</td>
                         <td>{{ order.datetime }}</td>
                         <td>
-                            <a href="#">مشاهده جزئیات</a> <!-- در آینده می‌تونیم این لینک رو فعال کنیم -->
+                            <a href="/order/{{ loop.index0 }}">مشاهده جزئیات</a>
                         </td>
                     </tr>
                 {% endfor %}
