@@ -370,6 +370,50 @@ def delete_product(shop_id, product_id):
 
 
 
+from flask import session
+
+@app.route('/add_to_cart/<int:shop_id>/<int:product_id>', methods=['POST'])
+def add_to_cart(shop_id, product_id):
+    product_file = f'products_{shop_id}.json'
+    if not os.path.exists(product_file):
+        return "⛔ محصول پیدا نشد", 404
+
+    with open(product_file, 'r', encoding='utf-8') as f:
+        products = json.load(f)
+
+    if 0 <= product_id < len(products):
+        product = products[product_id]
+        product['shop_id'] = shop_id
+        product['product_id'] = product_id
+
+        cart = session.get('cart', [])
+        cart.append(product)
+        session['cart'] = cart
+
+    return redirect(url_for('cart'))
+
+
+
+
+
+@app.route('/cart')
+def cart():
+    cart = session.get('cart', [])
+    total = 0
+
+    for item in cart:
+        price = int(item.get('price', 0))
+        discount = int(item.get('discount', 0)) if item.get('discount') else 0
+        total += price - discount
+
+    return render_template('cart.html', cart=cart, total=total)
+
+
+
+
+
+
+
 
 
 

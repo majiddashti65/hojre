@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="fa">
+<head>
+    <meta charset="UTF-8">
+    <title>🧺 سبد خرید</title>
+</head>
+<body dir="rtl">
+    <h2>🧺 سبد خرید شما</h2>
+
+    {% if cart %}
+        <ul>
+        {% for item in cart %}
+            <li>
+                <strong>{{ item.product_name }}</strong><br>
+                قیمت: {{ item.price }} تومان
+                {% if item.discount %}
+                    <span style="color: red;">(تخفیف: {{ item.discount }} تومان)</span>
+                {% endif %}
+                <br>
+                {% if item.images %}
+                    <img src="/{{ item.images[0] }}" alt="تصویر" width="100">
+                {% endif %}
+                <br>
+                <!-- حذف محصول از سبد (اختیاری برای مرحله بعد) -->
+                <!-- <form method="post" action="/remove_from_cart/{{ loop.index0 }}">
+                    <button type="submit">🗑 حذف</button>
+                </form> -->
+            </li>
+            <hr>
+        {% endfor %}
+        </ul>
+
+        <h3>💰 جمع کل: {{ total }} تومان</h3>
+
+        <a href="/checkout"><button>✅ ادامه تسویه‌حساب</button></a>
+    {% else %}
+        <p>⛔ سبد خرید شما خالی است.</p>
+    {% endif %}
+
+    <br>
+    <a href="/shops">🔙 بازگشت به فروشگاه‌ها</a>
+</body>
+</html>

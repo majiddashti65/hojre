@@ -39,6 +39,11 @@
                 {% if product.images %}
                     <img src="/{{ product.images[0] }}" alt="تصویر" width="100">
                 {% endif %}
+
+                <!-- دکمه افزودن به سبد خرید -->
+                <form method="post" action="/add_to_cart/{{ shop_id }}/{{ loop.index0 }}">
+                    <button type="submit">➕ افزودن به سبد خرید</button>
+                </form>
             </li>
             <hr>
         {% endfor %}
@@ -47,6 +52,7 @@
         <p>⛔ محصولی با شرایط وارد شده پیدا نشد.</p>
     {% endif %}
 
+    <a href="/cart">🧺 مشاهده سبد خرید</a> |
     <a href="/shops">🔙 بازگشت به لیست حجره‌ها</a>
 </body>
 </html>
