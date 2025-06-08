@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="fa">
+<head>
+    <meta charset="UTF-8">
+    <title>محصولات حجره {{ shop_id }}</title>
+</head>
+<body dir="rtl">
+    <h2>🛍 لیست محصولات حجره شماره {{ shop_id }}</h2>
+
+    {% if products %}
+        {% for product in products %}
+            <div style="border:1px solid #ccc; margin:10px; padding:10px;">
+                <h3>{{ product.product_name }}</h3>
+                <p>قیمت: {{ product.price }} تومان</p>
+                {% if product.discount %}
+                    <p>🔻 تخفیف: {{ product.discount }} تومان</p>
+                {% endif %}
+
+                {% for img in product.images %}
+                    <img src="/{{ img }}" width="100">
+                {% endfor %}
+            </div>
+        {% endfor %}
+    {% else %}
+        <p>محصولی برای این حجره ثبت نشده.</p>
+    {% endif %}
+
+    <br>
+    <a href="/product/{{ shop_id }}">➕ افزودن محصول</a> |
+    <a href="/shops">بازگشت</a>
+</body>
+</html>

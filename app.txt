@@ -129,8 +129,13 @@ UPLOAD_FOLDER = 'static/uploads'
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
+
+
+
 @app.route('/product/<int:shop_id>', methods=['GET', 'POST'])
 def add_product(shop_id):
+    product_file = f'products_{shop_id}.json'
+
     if request.method == 'POST':
         product_name = request.form.get('product_name')
         price = request.form.get('price')
@@ -139,23 +144,35 @@ def add_product(shop_id):
         images = request.files.getlist('images')
         image_paths = []
 
-        for image in images[:3]:  # فقط ۳ عکس اول ذخیره می‌شوند
+        for image in images[:3]:
             if image.filename:
                 filename = secure_filename(image.filename)
                 filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
                 image.save(filepath)
                 image_paths.append(filepath)
 
-        # چاپ تستی در لاگ
-        print("🛒 محصول جدید:")
-        print("نام:", product_name)
-        print("قیمت:", price)
-        print("تخفیف:", discount)
-        print("تصاویر:", image_paths)
+        new_product = {
+            "product_name": product_name,
+            "price": price,
+            "discount": discount,
+            "images": image_paths
+        }
 
-        return f"✅ محصول {product_name} با موفقیت ثبت شد."
+        if os.path.exists(product_file):
+            with open(product_file, 'r', encoding='utf-8') as f:
+                products = json.load(f)
+        else:
+            products = []
+
+        products.append(new_product)
+
+        with open(product_file, 'w', encoding='utf-8') as f:
+            json.dump(products, f, ensure_ascii=False, indent=2)
+
+        return redirect(url_for('show_products', shop_id=shop_id))
 
     return render_template("add_product.html", shop_id=shop_id)
+
 
 
 
