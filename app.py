@@ -274,6 +274,50 @@ def dashboard():
     return render_template("dashboard.html", shop=shop, shop_id=shop_id, product_count=len(products))
 
 
+@app.route('/product/<int:shop_id>/edit/<int:product_id>', methods=['GET', 'POST'])
+def edit_product(shop_id, product_id):
+    check_owner(shop_id)
+
+    product_file = f'products_{shop_id}.json'
+
+    if os.path.exists(product_file):
+        with open(product_file, 'r', encoding='utf-8') as f:
+            products = json.load(f)
+    else:
+        return "⛔ فایل محصول یافت نشد", 404
+
+    if 0 <= product_id < len(products):
+        product = products[product_id]
+
+        if request.method == 'POST':
+            product['product_name'] = request.form.get('product_name')
+            product['price'] = request.form.get('price')
+            product['discount'] = request.form.get('discount') if request.form.get('has_discount') else None
+
+            keep_images = []
+            for idx, img in enumerate(product['images']):
+                if request.form.get(f'remove_image_{idx}') != 'on':
+                    keep_images.append(img)
+
+            product['images'] = keep_images
+
+            new_images = request.files.getlist('new_images')
+            for image in new_images:
+                if image and image.filename:
+                    filename = secure_filename(image.filename)
+                    filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+                    image.save(filepath)
+                    product['images'].append(filepath)
+
+            products[product_id] = product
+            with open(product_file, 'w', encoding='utf-8') as f:
+                json.dump(products, f, ensure_ascii=False, indent=2)
+
+            return redirect(url_for('show_products', shop_id=shop_id))
+
+        return render_template("edit_product.html", product=product, shop_id=shop_id, product_id=product_id)
+    else:
+        return "⛔ شناسه محصول نامعتبر", 404
 
 
 
