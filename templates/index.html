@@ -3,6 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <title>ثبت حجره جدید</title>
+    <style>
+        #map { height: 300px; margin-bottom: 20px; }
+    </style>
+    <!-- Leaflet CSS & JS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 </head>
 <body dir="rtl">
     <h2>🧱 ثبت حجره</h2>
@@ -26,11 +32,17 @@
             <option value="">-- لطفاً ابتدا دسته‌بندی کلی را انتخاب کنید --</option>
         </select><br><br>
 
-        <label>👤 نام کاربری (اختصاصی برای ورود):</label><br>
+        <label>👤 نام کاربری (برای ورود):</label><br>
         <input type="text" name="username" required><br><br>
 
         <label>🔒 رمز عبور:</label><br>
         <input type="password" name="password" required><br><br>
+
+        <label>📍 موقعیت مکانی حجره:</label><br>
+        <div id="map"></div>
+
+        <input type="hidden" name="latitude" id="latitude">
+        <input type="hidden" name="longitude" id="longitude">
 
         <input type="submit" value="ثبت حجره">
     </form>
@@ -38,7 +50,6 @@
     <br>
     <a href="/shops">مشاهده لیست حجره‌ها</a>
 
-    <!-- 🔧 اسکریپت را اینجا گذاشتیم تا بعد از ساخت عناصر اجرا شود -->
     <script>
         function updateSubcategories() {
             const subCategory = document.getElementById("sub_category");
@@ -65,6 +76,28 @@
                 subCategory.appendChild(opt);
             }
         }
+
+        // نقشه Leaflet
+        var map = L.map('map').setView([32.6539, 51.6660], 13); // موقعیت پیش‌فرض (اصفهان)
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '© OpenStreetMap contributors'
+        }).addTo(map);
+
+        var marker;
+
+        map.on('click', function(e) {
+            var lat = e.latlng.lat.toFixed(6);
+            var lng = e.latlng.lng.toFixed(6);
+
+            document.getElementById('latitude').value = lat;
+            document.getElementById('longitude').value = lng;
+
+            if (marker) {
+                marker.setLatLng(e.latlng);
+            } else {
+                marker = L.marker(e.latlng).addTo(map);
+            }
+        });
     </script>
 </body>
 </html>

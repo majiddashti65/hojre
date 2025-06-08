@@ -31,6 +31,9 @@ def register():
     sub_category = request.form.get('sub_category')
     username = request.form.get('username')
     password = request.form.get('password')
+    latitude = request.form.get('latitude')
+    longitude = request.form.get('longitude')
+
 
     new_shop = {
         "shop_name": shop_name,
@@ -39,6 +42,9 @@ def register():
         "category_sub": sub_category,
         "username": username,
         "password": password
+        "latitude": latitude,
+        "longitude": longitude
+
     }
 
     if os.path.exists(DATA_FILE):
