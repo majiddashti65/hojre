@@ -26,14 +26,29 @@ def home():
 def register():
     shop_name = request.form.get('shop_name')
     phone = request.form.get('phone')
-    category = request.form.get('category')
+
+
+
+  main_category = request.form.get('main_category')
+sub_category = request.form.get('sub_category')
+
+
+
+
     username = request.form.get('username')
     password = request.form.get('password')
 
     new_shop = {
         "shop_name": shop_name,
         "phone": phone,
-        "category": category,
+
+
+        "category_main": main_category,
+"category_sub": sub_category,
+
+
+
+
         "username": username,
         "password": password
     }

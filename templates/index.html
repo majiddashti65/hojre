@@ -14,8 +14,61 @@
         <label>شماره تماس:</label><br>
         <input type="text" name="phone" required><br><br>
 
-        <label>دسته‌بندی:</label><br>
-        <input type="text" name="category" required><br><br>
+
+
+
+
+
+
+
+ <label>دسته‌بندی کلی:</label><br>
+<select name="main_category" id="main_category" onchange="updateSubcategories()" required>
+    <option value="">-- انتخاب کنید --</option>
+    <option value="فروشگاه">فروشگاه</option>
+    <option value="خدمات">خدمات</option>
+</select><br><br>
+
+<label>دسته‌بندی جزئی:</label><br>
+<select name="sub_category" id="sub_category" required>
+    <option value="">-- لطفاً ابتدا دسته‌بندی کلی را انتخاب کنید --</option>
+</select><br><br>
+
+<script>
+function updateSubcategories() {
+    const subCategory = document.getElementById("sub_category");
+    const mainCategory = document.getElementById("main_category").value;
+
+    const options = {
+        "فروشگاه": ["سوپرمارکت", "پوشاک", "لوازم خانگی"],
+        "خدمات": ["آرایشگاه", "تعمیر موبایل", "خشکشویی"]
+    };
+
+    // پاک‌سازی قبلی
+    subCategory.innerHTML = "";
+
+    // اگر دسته‌بندی کلی انتخاب شده بود
+    if (options[mainCategory]) {
+        options[mainCategory].forEach(sub => {
+            const opt = document.createElement("option");
+            opt.value = sub;
+            opt.innerText = sub;
+            subCategory.appendChild(opt);
+        });
+    } else {
+        const opt = document.createElement("option");
+        opt.value = "";
+        opt.innerText = "-- لطفاً ابتدا دسته‌بندی کلی را انتخاب کنید --";
+        subCategory.appendChild(opt);
+    }
+}
+</script>
+
+
+
+
+
+
+
 
         <label>👤 نام کاربری (اختصاصی برای ورود):</label><br>
         <input type="text" name="username" required><br><br>
