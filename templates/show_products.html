@@ -2,43 +2,41 @@
 <html lang="fa">
 <head>
     <meta charset="UTF-8">
-    <title>محصولات حجره {{ shop_id }}</title>
+    <title>مدیریت محصولات حجره</title>
 </head>
 <body dir="rtl">
-    <h2>🛍 لیست محصولات حجره شماره {{ shop_id }}</h2>
+    <h2>🛒 مدیریت محصولات حجره</h2>
+
+    <p>🔐 خوش آمدید | <a href="/logout">خروج</a></p>
 
     {% if products %}
+        <ul>
         {% for product in products %}
-            <div style="border:1px solid #ccc; margin:10px; padding:10px;">
-                <h3>{{ product.product_name }}</h3>
-                <p>قیمت: {{ product.price }} تومان</p>
+            <li>
+                <strong>{{ product.product_name }}</strong> - {{ product.price }} تومان
                 {% if product.discount %}
-                    <p>🔻 تخفیف: {{ product.discount }} تومان</p>
+                    | تخفیف: {{ product.discount }} تومان
                 {% endif %}
 
+                <br>
                 {% for img in product.images %}
-                    <img src="/{{ img }}" width="100">
+                    <img src="{{ '/' + img }}" alt="عکس محصول" width="100">
                 {% endfor %}
 
-
-<a href="/product/{{ shop_id }}/edit/{{ loop.index0 }}">✏️ ویرایش</a> |
-<a href="/product/{{ shop_id }}/delete/{{ loop.index0 }}" onclick="return confirm('آیا مطمئن هستید؟')">🗑 حذف</a>
-
-
-
-
-
-
-
-
-            </div>
+                <br>
+                <a href="/product/{{ shop_id }}/edit/{{ loop.index0 }}">✏️ ویرایش</a> |
+                <a href="/product/{{ shop_id }}/delete/{{ loop.index0 }}" onclick="return confirm('آیا مطمئن هستید؟')">🗑️ حذف</a>
+            </li>
+            <hr>
         {% endfor %}
+        </ul>
     {% else %}
-        <p>محصولی برای این حجره ثبت نشده.</p>
+        <p>هنوز هیچ محصولی ثبت نشده است.</p>
     {% endif %}
 
     <br>
-    <a href="/product/{{ shop_id }}">➕ افزودن محصول</a> |
-    <a href="/shops">بازگشت</a>
+    <a href="/product/{{ shop_id }}">➕ افزودن محصول جدید</a>
+    <br><br>
+    <a href="/shop/{{ shop_id }}/products">🛍 مشاهده فروشگاه عمومی این حجره</a>
 </body>
 </html>
