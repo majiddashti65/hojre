@@ -383,27 +383,39 @@ def delete_product(shop_id, product_id):
 
 
 
+
+
 from flask import session
 
-@app.route('/add_to_cart/<int:shop_id>/<int:product_id>', methods=['POST'])
+@app.route('/add_to_cart/<int:shop_id>/<int:product_id>', methods=['POST', 'GET'])
 def add_to_cart(shop_id, product_id):
     product_file = f'products_{shop_id}.json'
-    if not os.path.exists(product_file):
-        return "⛔ محصول پیدا نشد", 404
 
-    with open(product_file, 'r', encoding='utf-8') as f:
-        products = json.load(f)
+    if os.path.exists(product_file):
+        with open(product_file, 'r', encoding='utf-8') as f:
+            products = json.load(f)
+    else:
+        products = []
 
     if 0 <= product_id < len(products):
         product = products[product_id]
-        product['shop_id'] = shop_id
-        product['product_id'] = product_id
 
-        cart = session.get('cart', [])
-        cart.append(product)
+        cart = session.get('cart', {})
+        shop_cart = cart.get(str(shop_id), [])
+
+        shop_cart.append(product)
+        cart[str(shop_id)] = shop_cart
         session['cart'] = cart
 
-    return redirect(url_for('cart'))
+        # ✅ این خط کلیدی برای تشخیص حجره فعال در صفحه /cart
+        session['current_shop_id'] = shop_id
+
+        session.modified = True
+        return redirect(url_for('cart'))
+    else:
+        return "⛔️ محصول پیدا نشد", 404
+
+
 
 
 
