@@ -96,27 +96,31 @@ def logout():
 
 @app.route('/shops')
 def show_shops():
-    if os.path.exists(DATA_FILE):
-        with open(DATA_FILE, 'r', encoding='utf-8') as f:
-            data = json.load(f)
-    else:
-        data = []
-    return render_template("shops.html", shops=data)
+    name_query = request.args.get('shop_name', '').strip()
+    phone_query = request.args.get('phone', '').strip()
+    subcat_query = request.args.get('sub_category', '').strip()
 
-
-@app.route('/shop/<int:shop_id>')
-def shop_detail(shop_id):
     if os.path.exists(DATA_FILE):
         with open(DATA_FILE, 'r', encoding='utf-8') as f:
             data = json.load(f)
     else:
         data = []
 
-    if 0 <= shop_id < len(data):
-        shop = data[shop_id]
-        return render_template("shop_detail.html", shop=shop)
-    else:
-        return "⛔️ حجره‌ای با این شناسه پیدا نشد", 404
+    filtered = []
+    for shop in data:
+        if name_query and name_query not in shop['shop_name']:
+            continue
+        if phone_query and phone_query not in shop['phone']:
+            continue
+        if subcat_query and subcat_query not in shop['category_sub']:
+            continue
+        filtered.append(shop)
+
+    return render_template("shops.html", shops=filtered)
+
+
+
+
 
 
 @app.route('/delete/<int:shop_id>')

@@ -2,16 +2,32 @@
 <html lang="fa">
 <head>
     <meta charset="UTF-8">
-    <title>🧱 لیست حجره‌ها</title>
+    <title>لیست حجره‌ها</title>
 </head>
 <body dir="rtl">
     <h2>🧱 لیست حجره‌های ثبت‌شده</h2>
+
+    <!-- 🔍 فرم جستجو -->
+    <form method="get" action="/shops">
+        <label>🔎 نام حجره:</label>
+        <input type="text" name="shop_name" value="{{ request.args.get('shop_name', '') }}">
+        
+        <label>📞 شماره تماس:</label>
+        <input type="text" name="phone" value="{{ request.args.get('phone', '') }}">
+
+        <label>📂 دسته‌بندی جزئی:</label>
+        <input type="text" name="sub_category" value="{{ request.args.get('sub_category', '') }}">
+
+        <input type="submit" value="جستجو">
+    </form>
+
+    <hr>
 
     {% if shops %}
         <ul>
         {% for shop in shops %}
             <li>
-                <strong>{{ shop.shop_name }}</strong> - 📞 {{ shop.phone }}  
+                <strong>{{ shop.shop_name }}</strong> - {{ shop.phone }}  
                 <br>
                 📁 دسته‌بندی: {{ shop.category_main }} / {{ shop.category_sub }}
                 <br>
@@ -21,7 +37,7 @@
         {% endfor %}
         </ul>
     {% else %}
-        <p>⛔ هنوز هیچ حجره‌ای ثبت نشده است.</p>
+        <p>⛔ هیچ حجره‌ای با شرایط وارد شده پیدا نشد.</p>
     {% endif %}
 
     <br>
