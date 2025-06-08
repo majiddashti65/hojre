@@ -1,3 +1,6 @@
+from flask import session
+app.secret_key = 'your_secret_key_here'  # کلید برای session
+
 from flask import Flask, request, render_template, redirect, url_for
 from werkzeug.utils import secure_filename
 import os
@@ -248,6 +251,33 @@ def shop_store(shop_id):
         products = []
 
     return render_template("shop_store.html", products=products, shop_id=shop_id)
+
+
+
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    if request.method == 'POST':
+        username = request.form.get('username')
+        password = request.form.get('password')
+
+        if os.path.exists(DATA_FILE):
+            with open(DATA_FILE, 'r', encoding='utf-8') as f:
+                data = json.load(f)
+        else:
+            data = []
+
+        for i, shop in enumerate(data):
+            if shop['username'] == username and shop['password'] == password:
+                session['shop_id'] = i  # شناسه حجره
+                return redirect(url_for('show_products', shop_id=i))
+
+        return render_template('login.html', error="نام کاربری یا رمز اشتباه است.")
+
+    return render_template('login.html')
+
+
+
+
 
 
 if __name__ == '__main__':
