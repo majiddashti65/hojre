@@ -16,7 +16,7 @@
 
     <h3>🛍 محصولات:</h3>
     <ul>
-        {% for item in order.items %}
+        {% for item in order["items"] %}
             <li>{{ item.product_name }} - {{ item.price }} تومان {% if item.discount %} (تخفیف: {{ item.discount }} تومان) {% endif %}</li>
         {% endfor %}
     </ul>
