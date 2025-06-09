@@ -2,46 +2,30 @@
 <html lang="fa">
 <head>
     <meta charset="UTF-8">
-    <title>🧾 تسویه‌حساب</title>
+    <title>ثبت سفارش</title>
 </head>
 <body dir="rtl">
-    <h2>🧾 فرم نهایی سفارش</h2>
+    <h2>🧾 ثبت سفارش</h2>
 
-    {% if cart %}
-        <h3>🛍 سبد خرید:</h3>
-        <ul>
-        {% for item in cart %}
-            <li>
-                <strong>{{ item.product_name }}</strong><br>
-                قیمت: {{ item.price }} تومان
-                {% if item.discount %}
-                    <span style="color:red;">(تخفیف: {{ item.discount }} تومان)</span>
-                {% endif %}
-            </li>
-        {% endfor %}
-        </ul>
-        <p><strong>💰 جمع کل پرداختی:</strong> {{ total }} تومان</p>
+    <form method="post">
+        <label>👤 نام شما:</label><br>
+        <input type="text" name="name" required><br><br>
 
-        <hr>
-        <h3>👤 اطلاعات خریدار</h3>
-        <form method="post" action="/checkout">
-            <label>نام و نام خانوادگی:</label><br>
-            <input type="text" name="name" required><br><br>
+        <label>📞 شماره تماس:</label><br>
+        <input type="text" name="phone" required><br><br>
 
-            <label>شماره تماس:</label><br>
-            <input type="text" name="phone" required><br><br>
+        <label>📍 آدرس کامل:</label><br>
+        <textarea name="address" required></textarea><br><br>
 
-            <label>آدرس کامل:</label><br>
-            <textarea name="address" rows="3" required></textarea><br><br>
+        <label>📝 یادداشت (اختیاری):</label><br>
+        <textarea name="notes"></textarea><br><br>
 
-            <label>توضیحات اضافی (اختیاری):</label><br>
-            <textarea name="notes" rows="2"></textarea><br><br>
+        <h3>💳 روش پرداخت:</h3>
+        <label><input type="radio" name="payment_method" value="cod" checked> پرداخت در محل (نقدی یا کارت)</label><br>
+        <label><input type="radio" name="payment_method" value="online"> پرداخت آنلاین (فعلاً غیرفعال)</label><br><br>
 
-            <input type="submit" value="تأیید و پرداخت (شبیه‌سازی)">
-        </form>
-    {% else %}
-        <p>⛔ سبد خرید شما خالی است.</p>
-    {% endif %}
+        <input type="submit" value="ثبت سفارش">
+    </form>
 
     <br>
     <a href="/cart">🔙 بازگشت به سبد خرید</a>

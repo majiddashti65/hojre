@@ -492,61 +492,69 @@ def get_shamsi_datetime():
 
 
 
-import datetime
-
 from datetime import datetime
+import pytz
+import jdatetime
+
+def get_shamsi_datetime():
+    iran_tz = pytz.timezone('Asia/Tehran')
+    now_tehran = datetime.now(iran_tz)
+    shamsi = jdatetime.datetime.fromgregorian(datetime=now_tehran)
+    return shamsi.strftime('%Y/%m/%d - %H:%M')
+
 
 @app.route('/checkout/<int:shop_id>', methods=['POST'])
 def checkout(shop_id):
-    cart = session.get('cart', {}).get(str(shop_id), [])
-    if not cart:
-        return "⛔️ سبد خرید خالی است", 400
+    cart = session.get('cart', {})
+    if str(shop_id) not in cart or not cart[str(shop_id)]:
+        return "⛔️ سبد خرید این حجره خالی است", 400
 
     name = request.form.get('name')
     phone = request.form.get('phone')
     address = request.form.get('address')
-    notes = request.form.get('notes', '')
+    notes = request.form.get('notes')
+    payment_method = request.form.get('payment_method')
 
-    try:
-        total = 0
-        for item in cart:
-            price = int(item.get('price', 0))
-            discount = int(item.get('discount', 0)) if item.get('discount') else 0
-            total += price - discount
+    if payment_method == 'online':
+        return "❗ پرداخت آنلاین فعلاً فعال نیست. لطفاً از گزینه پرداخت در محل استفاده کنید.", 403
 
-        order = {
-            "name": name,
-            "phone": phone,
-            "address": address,
-            "notes": notes,
-            "items": cart,
-            "total": total,
-            "datetime": datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
-            "datetime": get_shamsi_datetime()
+    items = cart[str(shop_id)]
+    total = 0
+    for item in items:
+        price = int(item.get('price', 0))
+        discount = int(item.get('discount', 0)) if item.get('discount') else 0
+        total += price - discount
 
-        }
+    order = {
+        "name": name,
+        "phone": phone,
+        "address": address,
+        "notes": notes,
+        "items": items,
+        "total": total,
+        "datetime": get_shamsi_datetime(),
+        "payment_method": "پرداخت در محل"
+    }
 
-        order_file = f'orders_{shop_id}.json'
-        if os.path.exists(order_file):
-            with open(order_file, 'r', encoding='utf-8') as f:
-                orders = json.load(f)
-        else:
-            orders = []
+    order_file = f'orders_{shop_id}.json'
+    if os.path.exists(order_file):
+        with open(order_file, 'r', encoding='utf-8') as f:
+            orders = json.load(f)
+    else:
+        orders = []
 
-        orders.append(order)
+    orders.append(order)
+    with open(order_file, 'w', encoding='utf-8') as f:
+        json.dump(orders, f, ensure_ascii=False, indent=2)
 
-        with open(order_file, 'w', encoding='utf-8') as f:
-            json.dump(orders, f, ensure_ascii=False, indent=2)
+    # پاک‌سازی سبد خرید آن حجره از سشن
+    cart[str(shop_id)] = []
+    session['cart'] = cart
+    session.modified = True
 
-        # پاک کردن سبد خرید
-        session['cart'][str(shop_id)] = []
-        session.modified = True
+    return render_template("checkout_success.html", order=order)
 
-        return render_template('checkout_success.html', order=order)
 
-    except Exception as e:
-        print("❗ خطا در ثبت سفارش:", e)
-        return "⛔️ خطا در ثبت سفارش", 500
 
 
 
