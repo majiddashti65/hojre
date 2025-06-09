@@ -432,9 +432,12 @@ def cart():
     total = 0
 
     for item in cart:
-        price = int(item.get('price', 0))
-        discount = int(item.get('discount', 0)) if item.get('discount') else 0
-        total += price - discount
+        try:
+            price = int(item.get('price', 0))
+            discount = int(item.get('discount', 0)) if item.get('discount') else 0
+            total += price - discount
+        except:
+            print("❗ خطا در محاسبه قیمت", item)
 
     return render_template('cart.html', cart=cart, total=total, shop_id=shop_id)
 
