@@ -3,6 +3,10 @@ from werkzeug.utils import secure_filename
 import os
 import json
 from datetime import datetime
+from datetime import datetime
+import pytz
+import jdatetime
+
 
 app = Flask(__name__)
 app.secret_key = 'very_secret_key_hojreh'
@@ -472,6 +476,16 @@ def send_sms_faraz(to, message):
 
 
 
+def get_shamsi_datetime():
+    iran_tz = pytz.timezone('Asia/Tehran')
+    now_tehran = datetime.now(iran_tz)
+    shamsi = jdatetime.datetime.fromgregorian(datetime=now_tehran)
+    return shamsi.strftime('%Y/%m/%d - %H:%M')
+
+
+
+
+
 
 
 
@@ -508,6 +522,8 @@ def checkout(shop_id):
             "items": cart,
             "total": total,
             "datetime": datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+            "datetime": get_shamsi_datetime()
+
         }
 
         order_file = f'orders_{shop_id}.json'
@@ -537,37 +553,24 @@ def checkout(shop_id):
 
 
 
-@app.route('/order/<int:order_id>')
-def order_detail(order_id):
+@app.route('/order/<int:index>')
+def order_detail(index):
     if 'shop_id' not in session:
         return redirect(url_for('login'))
 
     shop_id = session['shop_id']
+    order_file = f'orders_{shop_id}.json'
 
-    # خواندن سفارش‌ها
-    if not os.path.exists("orders.json"):
-        return "⛔ فایل سفارش‌ها یافت نشد", 404
+    if os.path.exists(order_file):
+        with open(order_file, 'r', encoding='utf-8') as f:
+            orders = json.load(f)
+    else:
+        return "⛔ فایل سفارش یافت نشد", 404
 
-    with open("orders.json", "r", encoding="utf-8") as f:
-        orders = json.load(f)
-
-    if order_id >= len(orders):
-        return "⛔ شناسه سفارش نامعتبر", 404
-
-    order = orders[order_id]
-
-    # بررسی اینکه آیا این سفارش مربوط به حجره فعلی هست یا نه
-    related = False
-    for item in order['items']:
-        if item.get('shop_id') == shop_id:
-            related = True
-            break
-
-    if not related:
-        return "⛔ شما به این سفارش دسترسی ندارید", 403
-
-    return render_template("order_detail.html", order=order, order_id=order_id)
-
+    if 0 <= index < len(orders):
+        return render_template('order_detail.html', order=orders[index])
+    else:
+        return "⛔ سفارش یافت نشد", 404
 
 
 

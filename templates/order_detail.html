@@ -2,42 +2,26 @@
 <html lang="fa">
 <head>
     <meta charset="UTF-8">
-    <title>📦 جزئیات سفارش</title>
+    <title>جزئیات سفارش</title>
 </head>
 <body dir="rtl">
-    <h2>📦 جزئیات سفارش شماره {{ order_id + 1 }}</h2>
+    <h2>📦 جزئیات سفارش</h2>
 
-    <h3>👤 اطلاعات مشتری</h3>
-    <ul>
-        <li><strong>نام:</strong> {{ order.name }}</li>
-        <li><strong>شماره تماس:</strong> {{ order.phone }}</li>
-        <li><strong>آدرس:</strong> {{ order.address }}</li>
-        {% if order.notes %}
-        <li><strong>توضیحات:</strong> {{ order.notes }}</li>
-        {% endif %}
-        <li><strong>تاریخ ثبت:</strong> {{ order.datetime }}</li>
-    </ul>
+    <p><strong>نام مشتری:</strong> {{ order.name }}</p>
+    <p><strong>شماره تماس:</strong> {{ order.phone }}</p>
+    <p><strong>آدرس:</strong> {{ order.address }}</p>
+    <p><strong>یادداشت:</strong> {{ order.notes }}</p>
+    <p><strong>مبلغ نهایی:</strong> {{ order.total }} تومان</p>
+    <p><strong>زمان سفارش:</strong> {{ order.datetime }}</p>
 
-    <h3>🛍 محصولات سفارش داده شده:</h3>
+    <h3>🛍 محصولات:</h3>
     <ul>
-        {% for item in order["items"] %}
-            <li style="margin-bottom: 15px;">
-                <strong>{{ item.product_name }}</strong><br>
-                قیمت: {{ item.price }} تومان
-                {% if item.discount %}
-                    <span style="color:red;">(تخفیف: {{ item.discount }} تومان)</span>
-                {% endif %}
-                <br>
-                {% if item.images %}
-                    <img src="/{{ item.images[0] }}" width="120" height="120">
-                {% endif %}
-            </li>
+        {% for item in order.items %}
+            <li>{{ item.product_name }} - {{ item.price }} تومان {% if item.discount %} (تخفیف: {{ item.discount }} تومان) {% endif %}</li>
         {% endfor %}
     </ul>
 
-    <p><strong>💰 مبلغ کل قابل پرداخت:</strong> {{ order.total }} تومان</p>
-
-    <hr>
+    <br>
     <a href="/dashboard">🔙 بازگشت به داشبورد</a>
 </body>
 </html>
