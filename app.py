@@ -521,7 +521,7 @@ def checkout(shop_id):
             "notes": notes,
             "items": cart,
             "total": total,
-            "datetime": datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+            "datetime": datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
             "datetime": get_shamsi_datetime()
 
         }
