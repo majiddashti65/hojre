@@ -408,15 +408,14 @@ def add_to_cart(shop_id, product_id):
         cart[str(shop_id)] = shop_cart
         session['cart'] = cart
 
-        # ✅ این خط کلیدی برای تشخیص حجره فعال در صفحه /cart
+        # ✅ ثبت شناسه حجره فعال
         session['current_shop_id'] = shop_id
-
         session.modified = True
-        return redirect(url_for('cart'))
+
+        # ✅ برگشت به فروشگاه همان حجره
+        return redirect(url_for('shop_store', shop_id=shop_id))
     else:
         return "⛔️ محصول پیدا نشد", 404
-
-
 
 
 
