@@ -10,24 +10,30 @@
     {% if cart %}
         <ul>
             {% set total = 0 %}
-            {% for item in cart %}
-                {% set price = item.price | int %}
-                {% set discount = item.discount | int if item.discount else 0 %}
-                {% set final_price = price - discount %}
-                {% set total = total + final_price %}
 
-                <li style="margin-bottom: 15px;">
-                    <strong>{{ item.product_name }}</strong><br>
-                    قیمت: {{ price }} تومان
-                    {% if item.discount %}
-                        <span style="color:red;">(تخفیف: {{ discount }} تومان)</span>
-                    {% endif %}
-                    <br>
-                    {% if item.images %}
-                        <img src="/{{ item.images[0] }}" width="100" height="100">
-                    {% endif %}
-                </li>
-            {% endfor %}
+
+{% for item in cart %}
+    {% set price = item.price | int %}
+    {% set discount = item.discount | int if item.discount else 0 %}
+    {% set final_price = price - discount %}
+
+    <li style="margin-bottom: 15px;">
+        <strong>{{ item.product_name }}</strong><br>
+        قیمت: {{ price }} تومان
+        {% if item.discount %}
+            <span style="color:red;">(تخفیف: {{ discount }} تومان)</span>
+        {% endif %}
+        <br>
+        {% if item.images %}
+            <img src="/{{ item.images[0] }}" width="100" height="100">
+        {% endif %}
+    </li>
+{% endfor %}
+
+
+
+
+
         </ul>
 
         <p><strong>💰 مجموع قابل پرداخت: {{ total }} تومان</strong></p>
