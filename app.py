@@ -279,31 +279,31 @@ def dashboard():
 
     shop_id = session['shop_id']
 
-    with open(DATA_FILE, 'r', encoding='utf-8') as f:
-        shops = json.load(f)
+    # خواندن اطلاعات حجره
+    if os.path.exists(DATA_FILE):
+        with open(DATA_FILE, 'r', encoding='utf-8') as f:
+            shops = json.load(f)
+            shop = shops[shop_id]
+    else:
+        return "⛔ اطلاعات حجره پیدا نشد", 404
 
-    shop = shops[shop_id]
-
+    # خواندن محصولات
     product_file = f'products_{shop_id}.json'
-    products = []
     if os.path.exists(product_file):
         with open(product_file, 'r', encoding='utf-8') as f:
             products = json.load(f)
+    else:
+        products = []
 
-    # 🧾 فیلتر سفارش‌های مربوط به این حجره
-    orders = []
-    if os.path.exists("orders.json"):
-        with open("orders.json", "r", encoding="utf-8") as f:
-            all_orders = json.load(f)
+    # خواندن سفارش‌ها
+    order_file = f'orders_{shop_id}.json'
+    if os.path.exists(order_file):
+        with open(order_file, 'r', encoding='utf-8') as f:
+            orders = json.load(f)
+    else:
+        orders = []
 
-        for order in all_orders:
-            for item in order['items']:
-                if item.get('shop_id') == shop_id:
-                    orders.append(order)
-                    break  # اگر حداقل یکی از محصولات مربوط به این حجره بود، سفارش رو بیار
-
-    return render_template("dashboard.html", shop=shop, shop_id=shop_id, product_count=len(products), orders=orders)
-
+    return render_template('dashboard.html', shop=shop, shop_id=shop_id, product_count=len(products), orders=orders)
 
 
 

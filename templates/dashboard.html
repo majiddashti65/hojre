@@ -2,62 +2,50 @@
 <html lang="fa">
 <head>
     <meta charset="UTF-8">
-    <title>داشبورد حجره‌دار</title>
+    <title>📊 داشبورد حجره‌دار</title>
 </head>
 <body dir="rtl">
     <h2>📊 داشبورد حجره‌دار</h2>
 
-    <h3>🧱 اطلاعات حجره:</h3>
-    <ul>
-        <li><strong>نام حجره:</strong> {{ shop.shop_name }}</li>
-        <li><strong>شماره تماس:</strong> {{ shop.phone }}</li>
-        <li><strong>دسته‌بندی:</strong> {{ shop.category_main }} / {{ shop.category_sub }}</li>
-        <li><strong>آدرس:</strong> {{ shop.address }}</li>
-        <li><strong>موقعیت جغرافیایی:</strong> {{ shop.latitude }}, {{ shop.longitude }}</li>
-    </ul>
+    <p><strong>نام حجره:</strong> {{ shop.shop_name }}</p>
+    <p><strong>شماره تماس:</strong> {{ shop.phone }}</p>
+    <p><strong>دسته‌بندی:</strong> {{ shop.category_main }} - {{ shop.category_sub }}</p>
+    <p><strong>👤 نام کاربری:</strong> {{ shop.username }}</p>
 
-    <h3>🛒 تعداد محصولات: {{ product_count }}</h3>
+    <hr>
 
-    <h3>📂 عملیات مدیریتی:</h3>
-    <ul>
-        <li><a href="/product/{{ shop_id }}">➕ افزودن محصول جدید</a></li>
-        <li><a href="/products/{{ shop_id }}">📋 مدیریت محصولات</a></li>
-        <li><a href="/edit/{{ shop_id }}">🛠 ویرایش مشخصات حجره</a></li>
-        <li><a href="/shop/{{ shop_id }}/products" target="_blank">👁‍🗨 مشاهده فروشگاه عمومی</a></li>
-        <li><a href="/logout">🚪 خروج از حساب</a></li>
-    </ul>
+    <h3>📦 محصولات شما</h3>
+    <p>تعداد محصولات: {{ product_count }}</p>
+    <p><a href="/products/{{ shop_id }}">مدیریت محصولات</a></p>
+    <p><a href="/shop/{{ shop_id }}/products">مشاهده فروشگاه عمومی</a></p>
 
-    <h3>📦 سفارش‌های مشتریان:</h3>
+    <hr>
+
+    <h3>🧾 سفارش‌های ثبت‌شده</h3>
     {% if orders %}
-        <table border="1" cellpadding="5" cellspacing="0">
-            <thead>
+        <table border="1" cellpadding="5">
+            <tr>
+                <th>نام مشتری</th>
+                <th>شماره تماس</th>
+                <th>مبلغ</th>
+                <th>زمان</th>
+                <th>جزئیات</th>
+            </tr>
+            {% for order in orders %}
                 <tr>
-                    <th>نام مشتری</th>
-                    <th>مبلغ کل</th>
-                    <th>تعداد محصولات</th>
-                    <th>تاریخ سفارش</th>
-                    <th>عملیات</th>
+                    <td>{{ order.name }}</td>
+                    <td>{{ order.phone }}</td>
+                    <td>{{ order.total }} تومان</td>
+                    <td>{{ order.datetime }}</td>
+                    <td><a href="/order/{{ loop.index0 }}">🔍 مشاهده</a></td>
                 </tr>
-            </thead>
-            <tbody>
-                {% for order in orders %}
-                    <tr>
-                        <td>{{ order.name }}</td>
-                        <td>{{ order.total }} تومان</td>
-                        <td>{{ order["items"]|length }}</td>
-                        <td>{{ order.datetime }}</td>
-                        <td>
-                            <a href="/order/{{ loop.index0 }}">مشاهده جزئیات</a>
-                        </td>
-                    </tr>
-                {% endfor %}
-            </tbody>
+            {% endfor %}
         </table>
     {% else %}
-        <p>⛔ هیچ سفارشی برای شما ثبت نشده است.</p>
+        <p>هیچ سفارشی ثبت نشده است.</p>
     {% endif %}
 
-    <br>
-    <a href="/">🔙 بازگشت به صفحه اصلی</a>
+    <hr>
+    <p><a href="/logout">🚪 خروج</a></p>
 </body>
 </html>
