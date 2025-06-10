@@ -27,7 +27,7 @@
                 </tr>
             </thead>
             <tbody>
-                {% for i, order in enumerate(orders) %}
+                {% for order in orders %}
                     <tr>
                         <td>{{ order.name }}</td>
                         <td>{{ order.phone }}</td>
@@ -39,7 +39,7 @@
                         </td>
                         <td>{{ order.datetime }}</td>
                         <td>{{ order.status or "در حال بررسی" }}</td>
-                        <td><a href="/order/{{ i }}">مشاهده</a></td>
+                        <td><a href="/order/{{ loop.index0 }}">مشاهده</a></td>
                     </tr>
                 {% endfor %}
             </tbody>
