@@ -515,6 +515,8 @@ from datetime import datetime
 import pytz
 import jdatetime
 
+
+
 @app.route('/checkout/<int:shop_id>', methods=['POST'])
 def checkout(shop_id):
     cart = session.get('cart', {}).get(str(shop_id), [])
@@ -533,12 +535,12 @@ def checkout(shop_id):
         discount = int(item.get('discount', 0)) if item.get('discount') else 0
         total += price - discount
 
-    # زمان سفارش به صورت شمسی
+    # زمان شمسی تهران
     tehran = pytz.timezone('Asia/Tehran')
     now = datetime.now(tehran)
     shamsi = jdatetime.datetime.fromgregorian(datetime=now).strftime('%Y/%m/%d %H:%M')
 
-    order = {
+    new_order = {
         "name": name,
         "phone": phone,
         "address": address,
@@ -550,6 +552,7 @@ def checkout(shop_id):
         "status": "در حال بررسی"
     }
 
+    # ذخیره در فایل
     order_file = f'orders_{shop_id}.json'
     if os.path.exists(order_file):
         with open(order_file, 'r', encoding='utf-8') as f:
@@ -558,10 +561,11 @@ def checkout(shop_id):
         orders = []
 
     orders.append(new_order)
+
     with open(order_file, 'w', encoding='utf-8') as f:
         json.dump(orders, f, ensure_ascii=False, indent=2)
 
-    # ارسال پیامک به مدیر حجره (در صورت امکان)
+    # ارسال پیامک به صاحب حجره
     try:
         if os.path.exists(DATA_FILE):
             with open(DATA_FILE, 'r', encoding='utf-8') as f:
@@ -573,19 +577,19 @@ def checkout(shop_id):
                 "ApiKey": "کد_API_شما",
                 "SecretKey": "کد_SECRET_شما",
                 "Source": "3000505",
-                "Messages": [f"سفارش جدید از {name} برای حجره {shop['shop_name']}"],
+                "Messages": [f"📦 سفارش جدید از {name} برای حجره {shop['shop_name']}"],
                 "MobileNumbers": [shop['phone']]
             }
             requests.post(sms_url, json=payload)
-
     except Exception as e:
         print("⚠️ خطا در ارسال پیامک:", e)
 
-    # پاکسازی سبد خرید بعد از سفارش
+    # پاک کردن سبد خرید
     session['cart'][str(shop_id)] = []
     session.modified = True
 
     return render_template('checkout_success.html', order=new_order)
+
 
 
 
