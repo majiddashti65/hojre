@@ -33,9 +33,9 @@
                         <td>{{ order.phone }}</td>
                         <td>
                             {% set total = 0 %}
-                            {% for item in order.get("items", []) %}
-                                {% set price = item.get("price", 0) | int %}
-                                {% set discount = item.get("discount", 0) | int %}
+                            {% for item in order.items %}
+                                {% set price = item.price | int %}
+                                {% set discount = (item.discount | int) if item.discount else 0 %}
                                 {% set total = total + (price - discount) %}
                             {% endfor %}
                             {{ total }} تومان
