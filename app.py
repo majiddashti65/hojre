@@ -546,7 +546,8 @@ def checkout(shop_id):
         "items": cart,
         "total": total,
         "datetime": shamsi,
-        "payment": "پرداخت در محل"
+        "payment": "پرداخت در محل",
+        "status": "در حال بررسی"
     }
 
     order_file = f'orders_{shop_id}.json'
