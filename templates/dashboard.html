@@ -31,15 +31,7 @@
                     <tr>
                         <td>{{ order["name"] }}</td>
                         <td>{{ order["phone"] }}</td>
-                        <td>
-                            {% set total = 0 %}
-                            {% for item in order["items"] %}
-                                {% set price = item["price"] | default("0") | int %}
-                                {% set discount = item["discount"] | default("0") | int %}
-                                {% set total = total + (price - discount) %}
-                            {% endfor %}
-                            {{ total }} تومان
-                        </td>
+                        <td>{{ order["total"] }} تومان</td>
                         <td>{{ order["datetime"] }}</td>
                         <td>{{ order["status"] or "در حال بررسی" }}</td>
                         <td><a href="/order/{{ loop.index0 }}">مشاهده</a></td>
