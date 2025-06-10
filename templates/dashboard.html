@@ -32,10 +32,13 @@
                         <td>{{ order.name }}</td>
                         <td>{{ order.phone }}</td>
                         <td>
-                            {{
-                                order["items"] | sum(attribute='price' | int) -
-                                (order["items"] | selectattr('discount') | map(attribute='discount') | map('int') | sum)
-                            }} تومان
+                            {% set total = 0 %}
+                            {% for item in order.get("items", []) %}
+                                {% set price = item.get("price", 0) | int %}
+                                {% set discount = item.get("discount", 0) | int %}
+                                {% set total = total + (price - discount) %}
+                            {% endfor %}
+                            {{ total }} تومان
                         </td>
                         <td>{{ order.datetime }}</td>
                         <td>{{ order.status or "در حال بررسی" }}</td>
