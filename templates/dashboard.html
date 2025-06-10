@@ -2,50 +2,51 @@
 <html lang="fa">
 <head>
     <meta charset="UTF-8">
-    <title>📊 داشبورد حجره‌دار</title>
+    <title>📋 داشبورد حجره</title>
 </head>
 <body dir="rtl">
-    <h2>📊 داشبورد حجره‌دار</h2>
+    <h2>📋 داشبورد حجره {{ shop.shop_name }}</h2>
 
-    <p><strong>نام حجره:</strong> {{ shop.shop_name }}</p>
-    <p><strong>شماره تماس:</strong> {{ shop.phone }}</p>
-    <p><strong>دسته‌بندی:</strong> {{ shop.category_main }} - {{ shop.category_sub }}</p>
-    <p><strong>👤 نام کاربری:</strong> {{ shop.username }}</p>
-
-    <hr>
-
-    <h3>📦 محصولات شما</h3>
-    <p>تعداد محصولات: {{ product_count }}</p>
-    <p><a href="/products/{{ shop_id }}">مدیریت محصولات</a></p>
-    <p><a href="/shop/{{ shop_id }}/products">مشاهده فروشگاه عمومی</a></p>
+    <p>👤 مدیر: {{ shop.username }}</p>
+    <p>📞 تماس: {{ shop.phone }}</p>
+    <p>🏷️ دسته‌بندی: {{ shop.category_main }} / {{ shop.category_sub }}</p>
 
     <hr>
+    <h3>📦 لیست سفارش‌ها ({{ orders | length }} سفارش)</h3>
 
-    <h3>🧾 سفارش‌های ثبت‌شده</h3>
     {% if orders %}
-        <table border="1" cellpadding="5">
-            <tr>
-                <th>نام مشتری</th>
-                <th>شماره تماس</th>
-                <th>مبلغ</th>
-                <th>زمان</th>
-                <th>جزئیات</th>
-            </tr>
-            {% for order in orders %}
+        <table border="1" cellpadding="8">
+            <thead>
                 <tr>
-                    <td>{{ order.name }}</td>
-                    <td>{{ order.phone }}</td>
-                    <td>{{ order.total }} تومان</td>
-                    <td>{{ order.datetime }}</td>
-                    <td><a href="/order/{{ loop.index0 }}">🔍 مشاهده</a></td>
+                    <th>👤 نام مشتری</th>
+                    <th>📞 شماره تماس</th>
+                    <th>💰 مبلغ کل</th>
+                    <th>⏱ زمان</th>
+                    <th>📌 وضعیت</th>
+                    <th>🔍 جزئیات</th>
                 </tr>
-            {% endfor %}
+            </thead>
+            <tbody>
+                {% for i, order in enumerate(orders) %}
+                    <tr>
+                        <td>{{ order.name }}</td>
+                        <td>{{ order.phone }}</td>
+                        <td>
+                            {{
+                                order.items | sum(attribute='price' | int) -
+                                (order.items | selectattr('discount') | map(attribute='discount') | map('int') | sum)
+                            }} تومان
+                        </td>
+                        <td>{{ order.datetime }}</td>
+                        <td>{{ order.status or "در حال بررسی" }}</td>
+                        <td><a href="/order/{{ i }}">مشاهده</a></td>
+                    </tr>
+                {% endfor %}
+            </tbody>
         </table>
     {% else %}
-        <p>هیچ سفارشی ثبت نشده است.</p>
+        <p>هنوز سفارشی ثبت نشده است.</p>
     {% endif %}
 
-    <hr>
-    <p><a href="/logout">🚪 خروج</a></p>
 </body>
 </html>
