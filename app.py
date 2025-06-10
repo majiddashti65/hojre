@@ -503,56 +503,100 @@ def get_shamsi_datetime():
     return shamsi.strftime('%Y/%m/%d - %H:%M')
 
 
+
+
+
+
+from datetime import datetime
+import pytz
+import requests
+
 @app.route('/checkout/<int:shop_id>', methods=['POST'])
 def checkout(shop_id):
-    cart = session.get('cart', {})
-    if str(shop_id) not in cart or not cart[str(shop_id)]:
-        return "⛔️ سبد خرید این حجره خالی است", 400
+    # بارگذاری محصولات از سبد خرید
+    cart = session.get('cart', {}).get(str(shop_id), [])
+    if not cart:
+        return "⛔️ سبد خرید خالی است.", 400
 
-    name = request.form.get('name')
-    phone = request.form.get('phone')
+    # دریافت اطلاعات مشتری
+    customer_name = request.form.get('name')
+    customer_phone = request.form.get('phone')
     address = request.form.get('address')
-    notes = request.form.get('notes')
-    payment_method = request.form.get('payment_method')
+    notes = request.form.get('notes', '')
+    payment_method = request.form.get('payment_method', 'cod')  # در محل یا آنلاین
 
-    if payment_method == 'online':
-        return "❗ پرداخت آنلاین فعلاً فعال نیست. لطفاً از گزینه پرداخت در محل استفاده کنید.", 403
-
-    items = cart[str(shop_id)]
+    # محاسبه مبلغ کل
     total = 0
-    for item in items:
+    for item in cart:
         price = int(item.get('price', 0))
         discount = int(item.get('discount', 0)) if item.get('discount') else 0
         total += price - discount
 
+    # بارگذاری اطلاعات حجره
+    if os.path.exists(DATA_FILE):
+        with open(DATA_FILE, 'r', encoding='utf-8') as f:
+            shops = json.load(f)
+    else:
+        shops = []
+
+    if 0 <= shop_id < len(shops):
+        shop = shops[shop_id]
+    else:
+        return "⛔️ حجره یافت نشد", 404
+
+    # ذخیره سفارش
     order = {
-        "name": name,
-        "phone": phone,
+        "customer_name": customer_name,
+        "customer_phone": customer_phone,
         "address": address,
         "notes": notes,
-        "items": items,
         "total": total,
-        "datetime": get_shamsi_datetime(),
-        "payment_method": "پرداخت در محل"
+        "items": cart,
+        "payment_method": payment_method,
+        "datetime": datetime.now(pytz.timezone('Asia/Tehran')).strftime('%Y/%m/%d %H:%M:%S')
     }
 
-    order_file = f'orders_{shop_id}.json'
-    if os.path.exists(order_file):
-        with open(order_file, 'r', encoding='utf-8') as f:
+    orders_file = f'orders_{shop_id}.json'
+    if os.path.exists(orders_file):
+        with open(orders_file, 'r', encoding='utf-8') as f:
             orders = json.load(f)
     else:
         orders = []
 
     orders.append(order)
-    with open(order_file, 'w', encoding='utf-8') as f:
+
+    with open(orders_file, 'w', encoding='utf-8') as f:
         json.dump(orders, f, ensure_ascii=False, indent=2)
 
-    # پاک‌سازی سبد خرید آن حجره از سشن
-    cart[str(shop_id)] = []
-    session['cart'] = cart
+    # 🟢 ارسال پیامک از طریق فراز
+    api_key = "OWYxYjk5NzktODdhMy00ZDNlLTk4OWMtZmM4OTc0MmE2N2MxZGUxYWU5MzY1MjNlODhmY2FhZDY2MDk4YmMxNmZmNTk="
+    sms_url = "https://api2.farazsms.com/api/SendSMS"
+    sender = "5000XXXXXXXX"  # ❗️شماره اختصاصی شما در فراز اس‌ام‌اس
+
+    # پیامک به مشتری
+    customer_msg = f"✅ سفارش شما ثبت شد.\nفروشگاه: {shop['shop_name']}\nمبلغ: {total} تومان\nبا تشکر از خرید شما 🌟"
+    requests.post(sms_url, json={
+        "ApiKey": api_key,
+        "Recipient": customer_phone,
+        "Sender": sender,
+        "Message": customer_msg
+    })
+
+    # پیامک به صاحب حجره
+    owner_msg = f"📥 سفارش جدید ثبت شد!\nمشتری: {customer_name}\nمبلغ: {total} تومان"
+    requests.post(sms_url, json={
+        "ApiKey": api_key,
+        "Recipient": shop['phone'],
+        "Sender": sender,
+        "Message": owner_msg
+    })
+
+    # پاک‌سازی سبد خرید پس از ثبت سفارش
+    session['cart'][str(shop_id)] = []
     session.modified = True
 
-    return render_template("checkout_success.html", order=order)
+    return render_template("checkout_success.html", shop=shop, order=order)
+
 
 
 
