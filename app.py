@@ -538,7 +538,7 @@ def checkout(shop_id):
     now = datetime.now(tehran)
     shamsi = jdatetime.datetime.fromgregorian(datetime=now).strftime('%Y/%m/%d %H:%M')
 
-    new_order = {
+    order = {
         "name": name,
         "phone": phone,
         "address": address,
@@ -546,8 +546,7 @@ def checkout(shop_id):
         "items": cart,
         "total": total,
         "datetime": shamsi,
-        "payment": "پرداخت در محل",
-	"status": "در حال بررسی"
+        "payment": "پرداخت در محل"
     }
 
     order_file = f'orders_{shop_id}.json'
@@ -613,27 +612,6 @@ def order_detail(index):
 
 
 
-@app.route('/order/<int:index>/status', methods=['POST'])
-def update_order_status(index):
-    shop_id = session.get('shop_id')
-    order_file = f'orders_{shop_id}.json'
-
-    if not os.path.exists(order_file):
-        return "⛔ فایل سفارش پیدا نشد", 404
-
-    with open(order_file, 'r', encoding='utf-8') as f:
-        orders = json.load(f)
-
-    if index >= len(orders):
-        return "⛔ سفارش پیدا نشد", 404
-
-    new_status = request.form.get('status')
-    orders[index]['status'] = new_status
-
-    with open(order_file, 'w', encoding='utf-8') as f:
-        json.dump(orders, f, ensure_ascii=False, indent=2)
-
-    return redirect(url_for('dashboard'))
 
 
 
