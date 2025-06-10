@@ -34,8 +34,8 @@
                         <td>
                             {% set total = 0 %}
                             {% for item in order["items"] %}
-                                {% set price = item["price"] | int %}
-                                {% set discount = item["discount"] | int if item["discount"] else 0 %}
+                                {% set price = item["price"] | default("0") | int %}
+                                {% set discount = item["discount"] | default("0") | int %}
                                 {% set total = total + (price - discount) %}
                             {% endfor %}
                             {{ total }} تومان
