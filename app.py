@@ -556,7 +556,7 @@ def checkout(shop_id):
     else:
         orders = []
 
-    orders.append(order)
+    orders.append(new_order)
     with open(order_file, 'w', encoding='utf-8') as f:
         json.dump(orders, f, ensure_ascii=False, indent=2)
 
@@ -584,7 +584,7 @@ def checkout(shop_id):
     session['cart'][str(shop_id)] = []
     session.modified = True
 
-    return render_template('checkout_success.html', order=order)
+    return render_template('checkout_success.html', order=new_order)
 
 
 
