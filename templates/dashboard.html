@@ -33,8 +33,8 @@
                         <td>{{ order.phone }}</td>
                         <td>
                             {{
-                                order.items | sum(attribute='price' | int) -
-                                (order.items | selectattr('discount') | map(attribute='discount') | map('int') | sum)
+                                order["items"] | sum(attribute='price' | int) -
+                                (order["items"] | selectattr('discount') | map(attribute='discount') | map('int') | sum)
                             }} تومان
                         </td>
                         <td>{{ order.datetime }}</td>
